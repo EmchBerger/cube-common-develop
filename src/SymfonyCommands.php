@@ -9,6 +9,7 @@ class SymfonyCommands
     public static function addCcdCommands(Application $application)
     {
         $application->add(new Command\CheckXliffFiles());
+        $application->add(new Command\CheckHtmlTwig());
     }
 
     public static function initCommands()
