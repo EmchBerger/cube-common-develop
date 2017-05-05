@@ -8,7 +8,7 @@ class SymfonyCommands
 {
     public static function addCcdCommands(Application $application)
     {
-        $application->add(new CodeStyle\FixXliffFiles());
+        $application->add(new Command\CheckXliffFiles());
     }
 
     public static function initCommands()
