@@ -15,6 +15,12 @@ class CheckXliffFiles extends Command
     {
         $this
             ->setName('lint:xliff:cubestyle')
+            ->setDescription(<<<EoMsg
+checks some styles in xliff files
+  id is (shortened) source
+  source contains parameters of trans
+EoMsg
+             )
             ->addArgument('files', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'files to check')
             ->addOption('fix', 'f', InputOption::VALUE_NONE, 'write file directly')
             ->addOption('reindent', 'i', InputOption::VALUE_NONE, 'redo indentation of tags')

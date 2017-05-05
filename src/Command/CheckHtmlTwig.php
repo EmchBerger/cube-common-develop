@@ -16,6 +16,12 @@ class CheckHtmlTwig extends Command
     {
         $this
             ->setName('lint:html.twig')
+            ->setDescription(<<<EoMsg
+checks html code in twig files
+
+WARNING: reports too many failures
+EoMsg
+            )
             ->addArgument('files', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'files to check')
             ->addOption('errorFilesLimit', 'e', InputOption::VALUE_REQUIRED, 'stop after this many error files', 0);
     }
