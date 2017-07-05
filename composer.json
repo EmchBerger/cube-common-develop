@@ -16,6 +16,12 @@
         "friendsofphp/php-cs-fixer": "^2.0",
         "incenteev/composer-parameter-handler": "^2.1"
     },
+    "require-dev": {
+        "phpstan/phpstan": "^0.9.1"
+    },
+    "suggest": {
+        "phpstan/phpstan": "to check more things in the code"
+    },
     "autoload": {
         "psr-4": {"CubeTools\\CubeCommonDevelop\\": "src/"}
     },
