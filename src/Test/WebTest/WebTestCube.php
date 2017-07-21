@@ -2,10 +2,13 @@
 
 namespace CubeTools\CubeCommonDevelop\Test\WebTest;
 
+use CubeTools\CubeCommonDevelop\Test\MoreAssertionsTrait;
 use Symfony\Component\BrowserKit\Client;
 
 class WebTestCube extends WebTestBase
 {
+    use MoreAssertionsTrait;
+
     /**
      * Do a request and check the http status.
      *

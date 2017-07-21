@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.4.0",
         "escapestudios/symfony2-coding-standard": "^2.9",
         "friendsofphp/php-cs-fixer": "^2.0",
         "incenteev/composer-parameter-handler": "^2.1"
