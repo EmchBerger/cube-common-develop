@@ -186,6 +186,29 @@ class WebTestCube extends WebTestBase
     }
 
     /**
+     * Checks if all matching links are working.
+     *
+     * @param Client $client
+     * @param string $selector selector for links, like 'a[href*="?sort="]' or simply 'a'
+     * @param int    $minLinks minimum number of links to find
+     *
+     * @return Links[] tested links
+     */
+    public function checkLinksLoadable($client, $selector, $minLinks = 1)
+    {
+        $i = 0;
+        $checkLinks = $client->getCrawler()->filter($selector)->links();
+        foreach ($checkLinks as $link) {
+            $this->prepareNextRequest();
+            $this->clickSuccessful($client, $link);
+            ++$i;
+        }
+        $this->assertGreaterOrEqual($minLinks, $i, 'number of checked links');
+
+        return $checkLinks;
+    }
+
+    /**
      * Fills all empty Form fields with some value.
      *
      * @param Symfony\Component\DomCrawler\Form $form
