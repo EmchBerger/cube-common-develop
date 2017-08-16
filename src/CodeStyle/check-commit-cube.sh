@@ -34,8 +34,14 @@ else
     # Initial commit: diff against an empty tree object
     against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 fi
+if [ HEAD = $against ]
+then
+    mergeAgainst=
+else
+    mergeAgainst=$against
+fi
 
-gitListFiles="git diff-index $cachedDiff --name-only --diff-filter ACMTUB -z $against"
+gitListFiles="git diff $cachedDiff --name-only --diff-filter ACMTUB -z $against"
 xArgs0='xargs -0 -r'
 xArgs0n1="$xArgs0 -n 1 -P $(nproc)"
 
@@ -131,7 +137,7 @@ fi
 set -e
 
 # If there are whitespace errors, print the offending file names and warn.
-git diff --check $cachedDiff "$against" -- || showWarning
+git diff --check $cachedDiff $mergeAgainst -- || showWarning
 
 # check for files with exec bit new set
 if git diff $cachedDiff "$against" --raw -- | grep ':...[^7].. ...7..'
@@ -151,7 +157,7 @@ findUnwantedTerms () {
     filePatt="$1"
     invPatts="$2"
 
-    git diff $cachedDiff "$against" -G "$invPatts" --color -- "$filePatt" | grep -v -E '^[^-+ ]*-.*('"$invPatts)" |
+    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$filePatt" | grep -v -E '^[^-+ ]*-.*('"$invPatts)" |
         GREP_COLORS="$avoidColors" grep --color=always -C 16 -E "$invPatts"
     r=$?
     if [ 0 -eq $r ]
