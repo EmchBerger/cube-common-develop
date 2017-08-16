@@ -100,10 +100,12 @@ checkScriptChanged() {
         return $?
     fi
     [ -z "$ccScriptPath" ] && ccScriptPath=$BASH_SOURCE # set to this scripts path if not set
-    if [ "$ccOrigPath" -ot "$ccScriptPath" ]
+    if [ ${ccScriptPath:0:1} != . ]
+    then
+        echo some failure, wrong dest found, please set ccScriptPath to the hook script >&2
+        showWarning
+    elif [ "$ccOrigPath" -ot "$ccScriptPath" ]
         then true # current one is not older
-    elif $gitListFiles --quiet
-        then true # no files to check
     elif ! diff -q "$ccOrigPath" "$ccScriptPath" > /dev/null
     then
         # different content
@@ -113,7 +115,7 @@ checkScriptChanged() {
         touch -r "$ccOrigPath" "$ccScriptPath" #update timestamp
     fi
 }
-checkScriptChanged
+$gitListFiles --quiet || checkScriptChanged # only when files to check
 
 # Redirect output to stderr.
 exec 1>&2
