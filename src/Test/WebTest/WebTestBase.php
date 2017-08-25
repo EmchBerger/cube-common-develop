@@ -206,7 +206,7 @@ class WebTestBase extends WebTestCase
     final protected function maybeCheckFailureProblem(\Exception $e)
     {
         $doCheck = self::$client && !self::$conditionsChecked && $this->usesClient &&
-            self::$probablyWorking < 24 && !getenv('TestCaseDisableCheck') &&
+            self::$probablyWorking < 24 && 'all' !== getenv('TestCaseDisableCheck') &&
             ('PHPUnit_Framework_ExpectationFailedException' !== get_class($e) ||
                 false === strpos($e->getMessage(), 'local problem ') &&
                 false === strpos($e->getMessage(), '_routes.yml')
@@ -242,7 +242,11 @@ class WebTestBase extends WebTestCase
     protected function checkFailureProblem(Client $client, \Exception $e)
     {
         static::checkClientConnection($client, $e);
-        static::checkDbMapping($client->getKernel(), $e);
+        if ('dbCheck' === getenv('TestCaseDisableCheck')) {
+            fwrite(STDOUT, "  dbCheck skipped\n");
+        } else {
+            static::checkDbMapping($client->getKernel(), $e);
+        }
     }
 
     private static function checkDbMapping($kernel, \Exception $oldEx = null)
