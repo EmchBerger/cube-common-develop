@@ -269,10 +269,16 @@ class SmoketestPageLoadingBase extends WebTestBase
         } else {
             $specials = array();
         }
+        $specialTests = isset($specials['tests']) ? array_fill_keys(array_keys($specials['tests']), true) : array();
         foreach ($urls as $name => &$data) {
             $special = isset($specials['tests'][$name]) ? $specials['tests'][$name] : array();
             $data['testType'] = static::determineTestType($special, $data);
             $data['testSpecial'] = $special;
+            unset($specialTests[$name]);
+        }
+
+        if ($specialTests) {
+            echo "  ** warning, unexisting routes in $sPath: ".implode(', ', array_keys($specialTests))."\n\n";
         }
 
         return $urls;
