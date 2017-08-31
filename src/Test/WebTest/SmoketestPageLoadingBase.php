@@ -26,6 +26,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     public function testSimplePageLoading($method, $path, $info)
     {
         $aw = $this->loadPage($method, $path, $info);
+        $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
     }
@@ -85,18 +86,6 @@ class SmoketestPageLoadingBase extends WebTestBase
                     }
                 }
         }
-        if (Response::HTTP_OK !== $code && isset($info->passOrAnyOf)) {
-            $matched = $this->matchAnyOf($code, $msg, $info->passOrAnyOf);
-            if (null === $matched) {
-                // no match, will fail
-            } elseif (isset($matched['pass']) && $matched['pass']) {
-                $code = Response::HTTP_OK; // set to pass
-            } elseif (isset($matched['msg']) && '.' === $matched['msg']) {
-                $this->markTestSkipped('failure matched ('.$matched['name'].'): '.$msg);
-            } else {
-                $this->markTestIncomplete('failure matched ('.$matched['name'].'): '.$msg);
-            }
-        }
 
         return array('code' => $code, 'msg' => $msg, 'exception' => $ex);
     }
@@ -111,6 +100,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
+        $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         if ($aw['code'] == Response::HTTP_NOT_FOUND && (strpos($aw['msg'], 'entity') || strpos($aw['msg'], ' not found')) ||
             $aw['code'] == Response::HTTP_INTERNAL_SERVER_ERROR && strpos($aw['msg'], 'The file "') && strpos($aw['msg'], '" does not exist')
@@ -451,6 +441,34 @@ class SmoketestPageLoadingBase extends WebTestBase
         if (self::EXCEPTION_CODE === $aw['code']) {
             throw $aw['exception'];
         }
+    }
+
+    /**
+     * Checks the configuration "passorAnyOf".
+     *
+     * @param array $aw   answer from loadPage()
+     * @param array $info
+     *
+     * @return int code for into $aw
+     */
+    private function passOrAnyOf(array $aw, $info)
+    {
+        $code = $aw['code'];
+        if (Response::HTTP_OK !== $code && isset($info->passOrAnyOf)) {
+            $msg = $aw['msg'];
+            $matched = $this->matchAnyOf($code, $msg, $info->passOrAnyOf);
+            if (null === $matched) {
+                // no match, will fail
+            } elseif (isset($matched['pass']) && $matched['pass']) {
+                $code = Response::HTTP_OK; // set to pass
+            } elseif (isset($matched['msg']) && '.' === $matched['msg']) {
+                $this->markTestSkipped('failure matched ('.$matched['name'].'): '.$msg);
+            } else {
+                $this->markTestIncomplete('failure matched ('.$matched['name'].'): '.$msg);
+            }
+        }
+
+        return $code;
     }
 
     private static function determineTestType(array $special, array $urlData)
