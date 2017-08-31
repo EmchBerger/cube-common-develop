@@ -95,16 +95,16 @@ class WebTestBase extends WebTestCase
      */
     public static function getPageLoadingFailure($crawler, $testName)
     {
-        $errTitle = '';
+        $errTitle = 'UNKNOWN';
         $crTitle = $crawler->filter('div.text-exception h1');
         if (0 === count($crTitle)) {
             $crTitle = $crawler->filter('div.exception-message-wrapper h1'); // symfony >= 3.3
         }
+        if (0 === count($crTitle)) {
+            $crTitle = $crawler->filter('title'); // page title, in head
+        }
         if (count($crTitle)) {
             $errTitle = trim($crTitle->text());
-        }
-        if (!$errTitle) {
-            $errTitle = trim($crawler->filter('title')->text());
         }
 
         if (false !== strpos($errTitle, 'No route found for "')) {
