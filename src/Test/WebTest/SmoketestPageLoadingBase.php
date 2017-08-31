@@ -331,6 +331,16 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
     }
 
+    public function getSize()
+    {
+        // overwrite method in TestCase, instead of using annotations @small, @medium, @large everywhere
+        if (class_exists(\PHPUnit\Util\Test::class)) {
+            return \PHPUnit\Util\Test::LARGE;
+        } else {
+            return \PHPUnit_Util_Test::LARGE;
+        }
+    }
+
     /**
      * To overwrite in subclass when unknown parameters should be skipped.
      *
