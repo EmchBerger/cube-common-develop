@@ -206,8 +206,15 @@ fi
 #valid php ?
 $gitListFiles -- '*.php' | $xArgs0n1 -- php -l
 
-vendorBin=vendor/bin
-[ -d $vendorBin ] || vendorBin=bin
+getInVendorBin () {
+    local binDir
+    binDir=vendor/bin
+    if [ ! -f "$binDir/$1" ] && [ -f "bin/$1" ]
+    then
+        binDir=bin
+    fi
+    echo "$binDir/$1"
+}
 
 [ -z $phpBinary ] && phpBinary=c
 findPhpBinary () {
@@ -225,9 +232,9 @@ findPhpBinary () {
 runPhpUnit () {
     if [ -z "$phpUnit" ]
     then
-        if [ -f $vendorBin/phpunit ]
-            then phpUnit=$vendorBin/phpunit
-        else
+        phpUnit=$(getInVendorBin phpunit)
+        if [ ! -f "$phpUnit" ]
+        then
             phpUnit='phpunit'
         fi
     fi
@@ -337,7 +344,7 @@ then
 fi
 
 #check style
-phpCs="$vendorBin/phpcs --colors --report-width=auto -l -p"
+phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
 $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
 # config is in project dir
 
