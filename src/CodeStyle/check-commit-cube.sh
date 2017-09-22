@@ -58,7 +58,7 @@ showWarning() {
     echo -n '  continue anyway with c, abort with a: '
     while true
     do
-        read -n 1 AW < /dev/tty
+        read -r -n 1 AW < /dev/tty
         case $AW in
         c)
             echo
@@ -69,7 +69,7 @@ showWarning() {
             exit 2
         ;;
         esac
-        read -t 1 FLUSH || true < /dev/tty # flush input
+        read -r -t 1 FLUSH || true < /dev/tty # flush input
         echo -n ' [ca]? '
     done
 }
@@ -224,7 +224,7 @@ findPhpBinary () {
         true
     elif ls ./???/cache/ccPhpVersion >/dev/null 2>&1
     then
-        phpBinary="$(type -p $(cat ./???/cache/ccPhpVersion | head -n 1))"
+        phpBinary="$(type -p "$(cat ./???/cache/ccPhpVersion | head -n 1)")"
     else
         phpBinary=''
     fi
@@ -240,7 +240,7 @@ runPhpUnit () {
         fi
     fi
 
-    SYMFONY_DEPRECATIONS_HELPER=disabled $phpUnit "$@"
+    SYMFONY_DEPRECATIONS_HELPER=disabled "$phpUnit" "$@"
 }
 
 checkTranslations () {
@@ -263,12 +263,12 @@ findSyConsole () {
     if [ -z "$syConsole" ]
     then
         syConsole=bin/console
-        if [ -f $syConsole ]
+        if [ -f "$syConsole" ]
             then true # OK
         elif [ -f app/console ]
             then syConsole=app/console
         else
-            syConsoleError='console not available to run '$syConsole
+            syConsoleError="console not available to run $syConsole"
         fi
     fi
 
@@ -280,31 +280,31 @@ findSyConsole () {
 syConsoleRun() {
     if ! findSyConsole
     then
-        echo $syConsoleError $@
+        echo "$syConsoleError" "$@"
         return 127 # not found error
     fi
     findPhpBinary
-    $phpBinary $syConsole $@
+    $phpBinary "$syConsole" "$@"
 }
 syConsoleXargs () {
     local oneChar
     findPhpBinary
-    if ! findSyConsole  && read -N 1 oneChar
+    if ! findSyConsole  && read -r -N 1 oneChar
     then # no console but input, trigger error
-        { printf "$oneChar"; cat; } | $xArgs0 -- echo $syConsoleError $@
+        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@"
         return 127
     fi
-    $xArgs0 -- $phpBinary $syConsole $@
+    $xArgs0 -- $phpBinary "$syConsole" "$@"
 }
 syConsoleXargsN1 () {
     local oneChar
     findPhpBinary
-    if ! findSyConsole && read -N 1 oneChar
+    if ! findSyConsole && read -r -N 1 oneChar
     then # no console but input, trigger error listing files in one command
-        { printf "$oneChar"; cat; } | $xArgs0 -- echo $syConsoleError "$@" for
+        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@" for
         return 127
     fi
-    $xArgs0n1 -- $phpBinary $syConsole "$@"
+    $xArgs0n1 -- $phpBinary "$syConsole" "$@"
 }
 
 
@@ -349,8 +349,8 @@ phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
 $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
 # config is in project dir
 
-if [ "0" = "$retStat" ]
+if [ "0" != "$retVal" ]
 then
     echo failed
-    exit $retStat
+    exit $retVal
 fi
