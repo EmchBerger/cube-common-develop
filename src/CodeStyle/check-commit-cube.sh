@@ -166,7 +166,7 @@ findUnwantedTerms () {
     fi
     return $r
 }
-invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  | dump\("
+invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  | dump\(|\\$\\$"
 if findUnwantedTerms '*.php' "$invPatts"
 then
     cat <<'TO_HERE'
@@ -176,6 +176,7 @@ use this:
   * ->add('name', TextType::class    instead of ->add('add', 'text' when creating forms (and ChoiceType, DateType, ...)
   * SomeType::class                  instead of new SomeType() in ->add( and ->createForm('
   * remove debugging                 dump(...) breaks non-debug run
+  * ${$name_of_var}                  instead of $$name_of_var (in case you really what this)
 TO_HERE
     showWarning
 fi
