@@ -176,7 +176,7 @@ use this:
   * ->add('name', TextType::class    instead of ->add('add', 'text' when creating forms (and ChoiceType, DateType, ...)
   * SomeType::class                  instead of new SomeType() in ->add( and ->createForm('
   * remove debugging                 dump(...) breaks non-debug run
-  * ${$name_of_var}                  instead of $$name_of_var (in case you really what this)
+  * ${$name_of_var}                  instead of $$name_of_var (in case you really want this)
 TO_HERE
     showWarning
 fi
