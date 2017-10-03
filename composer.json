@@ -12,9 +12,9 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "incenteev/composer-parameter-handler": "^2.1",
         "escapestudios/symfony2-coding-standard": "^2.9",
-        "friendsofphp/php-cs-fixer": "^2.0"
+        "friendsofphp/php-cs-fixer": "^2.0",
+        "incenteev/composer-parameter-handler": "^2.1"
     },
     "autoload": {
         "psr-4": {"CubeTools\\CubeCommonDevelop\\": "src/"}
@@ -35,5 +35,8 @@
         "cube-post-install-update": [
             "src/Workplace/netbeans_config_cube.sh"
         ]
+    },
+    "config": {
+        "sort-packages": true
     }
 }
