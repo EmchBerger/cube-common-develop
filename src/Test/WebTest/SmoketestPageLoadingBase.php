@@ -362,7 +362,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         return $buffer;
     }
 
-    private static function replaceUrlParameter($url, $info, $method)
+    protected static function replaceUrlParameter($url, $info, $method, array $defaultReplace = array())
     {
         $nr = 1;
         if ('DELETE' === $method) {
@@ -370,7 +370,9 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
         $replace = array('{id}' => $nr);
         if (isset($info->urlParameters)) {
-            $replace = array_merge($replace, $info->urlParameters);
+            $replace = array_merge($replace, $defaultReplace, $info->urlParameters);
+        } elseif ($defaultReplace) {
+            $replace = array_merge($replace, $defaultReplace);
         }
         $url = strtr($url, $replace);
         if (static::skipUnknownRouteParameters() && strpos($url, '{')) {
