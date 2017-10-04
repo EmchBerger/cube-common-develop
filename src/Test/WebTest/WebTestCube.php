@@ -43,6 +43,56 @@ class WebTestCube extends WebTestBase
     }
 
     /**
+     * Like submitSuccesful, but shows form errors, which is useful to debug form problems.
+     *
+     * @param Client $client
+     * @param Form   $form
+     * @param bool   $redirect
+     *
+     * @return Crawler
+     */
+    public function submitSuccessfulDebugForm(Client $client, $form, $redirect)
+    {
+        $ex = null;
+        $profile = null;
+        $this->enableProfiler($client);
+        try {
+            $client->submit($form);
+            if ($redirect && $client->getResponse()->isRedirect()) {
+                $profile = $client->getProfile();
+            }
+            $r = $this->checkResponse($client, $redirect);
+        } catch (\Exception $e) {
+            $ex = $e;
+        } catch (\Throwable $e) {
+            $ex = $e;
+        }
+        if (null === $profile) {
+            $profile = $client->getProfile();
+        }
+        if (false === $profile) {
+            echo '    profiler not enabled    ';
+        } else {
+            $formErrs = $this->getFormErrors($profile);
+            if ($formErrs) {
+                $msg = sprintf('form errors: "%s"', join('", "', $formErrs));
+                if ($ex) {
+                    $exClass = get_class($ex);
+                    throw new $exClass($ex->getMessage().'    '.$msg, $ex->getCode(), $ex);
+                }
+                echo "\n    ".$msg."\n";
+            } else {
+                echo '    no form errors    ';
+            }
+        }
+        if ($ex) {
+            throw $ex;
+        }
+
+        return $r;
+    }
+
+    /**
      * Click on a link and check the http reply.
      *
      * @param Client $client
@@ -238,6 +288,21 @@ class WebTestCube extends WebTestBase
         }
 
         return $token->getUser();
+    }
+
+    /**
+     * Call $client->enableProfiler(), with checking kernel first.
+     *
+     * Because the error message is irritating when kernel is not ready.
+     *
+     * @param type $client
+     */
+    protected static function enableProfiler($client)
+    {
+        if (!$client->getContainer()) {
+            $client->getKernel()->boot(); // $client->enableProfiler needs a working container
+        }
+        $client->enableProfiler();
     }
 
     private static function collectFormErrors(array &$errorsResult, $form, array $formNames)
