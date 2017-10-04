@@ -35,6 +35,7 @@ then # netbeans is installed
 fi
 
 installGitHook () {
+    local checkCommitArg pcHook
     checkCommitArg=$1
     if [ '--nocc' != "$checkCommitArg" ] && [ -d .git ]
     then
@@ -44,7 +45,8 @@ installGitHook () {
         else
             checkStyle="$checkCommitArg"
         fi
-        [ -f .git/hooks/pre-commit ] || cp -n "$checkStyle" .git/hooks/pre-commit
+        pcHook=.git/hooks/pre-commit
+        [ -f "$pcHook" ] || [ "$checkStyle" -ef "$pcHook" ] || cp -n "$checkStyle" "$pcHook"
     fi
 }
 
