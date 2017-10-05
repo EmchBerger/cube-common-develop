@@ -99,8 +99,8 @@ checkScriptChanged() {
         showWarning
         return $?
     fi
-    [ -z "$ccScriptPath" ] && ccScriptPath=$BASH_SOURCE # set to this scripts path if not set
-    if [ ${ccScriptPath:0:1} != . ]
+    [ -z "$ccScriptPath" ] && ccScriptPath="${BASH_SOURCE[0]}" # set to this scripts path if not set
+    if [ "${ccScriptPath:0:1}" != . ]
     then
         echo some failure, wrong dest found, please set ccScriptPath to the hook script >&2
         showWarning
@@ -123,8 +123,8 @@ exec 1>&2
 # Note that the use of brackets around a tr range is ok here, (it's
 # even required, for portability to Solaris 10's /usr/bin/tr), since
 # the square bracket bytes happen to fall in the designated range.
-if test $(git diff $cachedDiff --name-only --diff-filter=A -z "$against" |
-      LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
+if test "$(git diff $cachedDiff --name-only --diff-filter=A -z "$against" |
+      LC_ALL=C tr -d '[ -~]\0' | wc -c)" != 0
 then
     cat <<\EOF
 Error: Attempt to add a non-ASCII file name.
@@ -219,7 +219,7 @@ getInVendorBin () {
     echo "$binDir/$1"
 }
 
-[ -z $phpBinary ] && phpBinary=c
+[ -z "$phpBinary" ] && phpBinary=c
 findPhpBinary () {
     if [ c != "$phpBinary" ]
     then
