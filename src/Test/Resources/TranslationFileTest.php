@@ -33,7 +33,12 @@ class TranslationFileTest extends KernelTestCase
         $cat = $tr->getCatalogue($langName);
         $texts = $this->getCheckTexts($langName);
         foreach ($texts as $text) {
-            $r = $cat->defines($text);
+            $domain = 'messages';
+            if (is_array($text)) {
+                $domain = $text['domain'];
+                $text = $text['text'];
+            }
+            $r = $cat->defines($text, $domain);
             $msg = 'translation problem';
             if (!$r) {
                 $msg = sprintf('translation of "%s" missing', $text);
