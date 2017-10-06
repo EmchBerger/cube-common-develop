@@ -247,10 +247,10 @@ runPhpUnit () {
 
 checkTranslations () {
     local transTest
-    transTest=src/AppBundle/Tests/Resources/TranslationFileTest.php
-    if [ ! -f $transTest ]
+    transTest="$(find tests/ src/ vendor/cubetools/ -type f -name 'Translation*Test.php' -print -quit)"
+    if [ ! -f "$transTest" ]
     then
-        echo can not check translations, test $transTest is missing.
+        echo can not check translations, test 'Translation*Test.php' is missing.
         showWarning
         return $?
     fi
