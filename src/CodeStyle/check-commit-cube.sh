@@ -99,11 +99,13 @@ checkScriptChanged() {
         showWarning
         return $?
     fi
-    [ -z "$ccScriptPath" ] && ccScriptPath=$BASH_SOURCE # set to this scripts path if not set
-    if [ "$ccOrigPath" -ot "$ccScriptPath" ]
+    [ -z "$ccScriptPath" ] && ccScriptPath="${BASH_SOURCE[0]}" # set to this scripts path if not set
+    if [ "${ccScriptPath:0:1}" != . ]
+    then
+        echo some failure, wrong dest found, please set ccScriptPath to the hook script >&2
+        showWarning
+    elif [ "$ccOrigPath" -ot "$ccScriptPath" ]
         then true # current one is not older
-    elif $gitListFiles --quiet
-        then true # no files to check
     elif ! diff -q "$ccOrigPath" "$ccScriptPath" > /dev/null
     then
         # different content
@@ -113,7 +115,7 @@ checkScriptChanged() {
         touch -r "$ccOrigPath" "$ccScriptPath" #update timestamp
     fi
 }
-checkScriptChanged
+$gitListFiles --quiet || checkScriptChanged # only when files to check
 
 # Redirect output to stderr.
 exec 1>&2
@@ -121,8 +123,8 @@ exec 1>&2
 # Note that the use of brackets around a tr range is ok here, (it's
 # even required, for portability to Solaris 10's /usr/bin/tr), since
 # the square bracket bytes happen to fall in the designated range.
-if test $(git diff $cachedDiff --name-only --diff-filter=A -z "$against" |
-      LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
+if test "$(git diff $cachedDiff --name-only --diff-filter=A -z "$against" |
+      LC_ALL=C tr -d '[ -~]\0' | wc -c)" != 0
 then
     cat <<\EOF
 Error: Attempt to add a non-ASCII file name.
@@ -217,7 +219,7 @@ getInVendorBin () {
     echo "$binDir/$1"
 }
 
-[ -z $phpBinary ] && phpBinary=c
+[ -z "$phpBinary" ] && phpBinary=c
 findPhpBinary () {
     if [ c != "$phpBinary" ]
     then
@@ -245,10 +247,10 @@ runPhpUnit () {
 
 checkTranslations () {
     local transTest
-    transTest=src/AppBundle/Tests/Resources/TranslationFileTest.php
-    if [ ! -f $transTest ]
+    transTest="$(find tests/ src/ vendor/cubetools/ -type f -name 'Translation*Test.php' -print -quit)"
+    if [ ! -f "$transTest" ]
     then
-        echo can not check translations, test $transTest is missing.
+        echo can not check translations, test 'Translation*Test.php' is missing.
         showWarning
         return $?
     fi
@@ -348,6 +350,10 @@ fi
 phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
 $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
 # config is in project dir
+
+#check shell scripts
+$gitListFiles -- '*.sh' | $xArgs0n1 -- bash -n # syntax
+$whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
 
 if [ "0" != "$retVal" ]
 then

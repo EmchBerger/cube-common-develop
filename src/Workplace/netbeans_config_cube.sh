@@ -2,6 +2,8 @@
 
 # encourage developer to use the recommended netbeans settings
 
+set -o nounset
+
 if [ -d nbproject ] || [ -d ~/.netbeans/ ] || type netbeans >/dev/null 2>&1
 then # netbeans is installed
     nbInstall=1
@@ -14,16 +16,16 @@ then # netbeans is installed
                 git -C nbproject merge --ff-only
             elif [ ! -d nbproject ]
             then # nothing there
-                git clone $nbUrl nbproject
+                git clone "$nbUrl" nbproject
             else # settings there
                 atExit() {
                     [ -d .tmp_nbproject ] && mv -b .tmp_nbproject /tmp/tmp_nbproject
                 }
                 trap 'atExit' EXIT
-                git clone $nbUrl .tmp_nbproject &&
+                git clone "$nbUrl" .tmp_nbproject &&
                 mv -i .tmp_nbproject/.git nbproject && # place repo into config
                 rm -r .tmp_nbproject
-                git -C nbproject checkout -- $(git -C nbproject diff --name-only --diff-filter=D)
+                git -C nbproject diff --name-only --diff-filter=D | xargs -r -d '\n' git -C nbproject checkout -- # checkout missing files
                 git -C nbproject --no-pager diff --exit-code || echo check your netbeans configuration
             fi
         } | sed -e '1 i\\nupdating nbproject ...'
@@ -36,12 +38,12 @@ fi
 
 installGitHook () {
     local checkCommitArg pcHook
-    checkCommitArg=$1
+    checkCommitArg="$1"
     if [ '--nocc' != "$checkCommitArg" ] && [ -d .git ]
     then
         if [ -z "$checkCommitArg" ]
         then
-            checkStyle="$(dirname $BASH_SOURCE)/../CodeStyle/check-commit-cube.sh"
+            checkStyle="$(dirname "${BASH_SOURCE[0]}")/../CodeStyle/check-commit-cube.sh"
         else
             checkStyle="$checkCommitArg"
         fi
@@ -50,7 +52,7 @@ installGitHook () {
     fi
 }
 
-installGitHook $1
+installGitHook "$1"
 
 [ -n "$nbInstall" ] && jobs %% | grep -q Running && sleep 2 # wait a bit to allow jobs to be finished
 true # as return value
