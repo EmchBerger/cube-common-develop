@@ -38,7 +38,7 @@ fi
 
 installGitHook () {
     local checkCommitArg pcHook
-    checkCommitArg="$1"
+    checkCommitArg="${1:-}"
     if [ '--nocc' != "$checkCommitArg" ] && [ -d .git ]
     then
         if [ -z "$checkCommitArg" ]
@@ -52,7 +52,7 @@ installGitHook () {
     fi
 }
 
-installGitHook "$1"
+installGitHook "${1:-}"
 
 [ -n "$nbInstall" ] && jobs %% | grep -q Running && sleep 2 # wait a bit to allow jobs to be finished
 true # as return value
