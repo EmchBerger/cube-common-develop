@@ -349,7 +349,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         return false;
     }
 
-    protected function getDataSetAsString($includeData = true)
+    public function getDataSetAsString($includeData = true)
     {
         $buffer = parent::getDataSetAsString($includeData);
         if ($includeData && $buffer) {
