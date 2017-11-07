@@ -29,8 +29,8 @@ class TranslationFileTest extends KernelTestCase
     public function testLanguageFile($langName)
     {
         static::bootKernel();
-        $tr = static::$kernel->getContainer()->get('translator');
-        $cat = $tr->getCatalogue($langName);
+        $trans = static::$kernel->getContainer()->get('translator');
+        $cat = $trans->getCatalogue($langName);
         $texts = $this->getCheckTexts($langName);
         foreach ($texts as $text) {
             $domain = 'messages';

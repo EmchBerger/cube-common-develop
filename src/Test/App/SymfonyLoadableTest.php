@@ -17,7 +17,6 @@ use PHPUnit\Framework\TestCase;
 class SymfonyLoadableTest extends TestCase
 {
     /**
-     *
      * @var string php executable path
      */
     private static $php;
@@ -33,10 +32,10 @@ class SymfonyLoadableTest extends TestCase
      */
     public function testAppRunnable($appPath)
     {
-        $p = new Process(self::$php.' '.$appPath, null, null, 5);
-        $p->mustRun();
-        $this->assertEquals('', $p->getErrorOutput(), 'no error output');
-        $this->assertNotEmpty($p->getOutput(), 'some output');
+        $proc = new Process(self::$php.' '.$appPath, null, null, 5);
+        $proc->mustRun();
+        $this->assertEquals('', $proc->getErrorOutput(), 'no error output');
+        $this->assertNotEmpty($proc->getOutput(), 'some output');
     }
 
     public static function getAppNames()

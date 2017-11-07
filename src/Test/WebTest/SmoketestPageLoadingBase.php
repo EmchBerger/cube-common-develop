@@ -250,7 +250,7 @@ class SmoketestPageLoadingBase extends WebTestBase
             } else {
                 $urls = array();
                 $todoUrl = array('defaults' => array('_controller' => ''), 'methods' => array('GET'));
-                $todoUrl['path'] = 'TODO: update _routes.yml, see hint at top.';
+                $todoUrl['path'] = 'TO'.'DO: update _routes.yml, see hint at top.';
                 $curUrls = array_merge(array('TODO' => $todoUrl), $curUrls);
             }
             foreach ($curUrls as $name => $data) {
@@ -353,9 +353,9 @@ class SmoketestPageLoadingBase extends WebTestBase
     {
         $buffer = parent::getDataSetAsString($includeData);
         if ($includeData && $buffer) {
-            $p = strpos($buffer, ', stdClass');
-            if ($p !== false) {
-                $buffer = substr_replace($buffer, ', ..)', $p);
+            $pos = strpos($buffer, ', stdClass');
+            if ($pos !== false) {
+                $buffer = substr_replace($buffer, ', ..)', $pos);
             }
         }
 
