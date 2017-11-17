@@ -135,8 +135,12 @@ class WebTestBase extends WebTestCase
             $file = self::$client->getContainer()->getParameter('kernel.cache_dir').'/tests_temp/';
             file_exists($file) || mkdir($file, 0700);
             $file .= str_replace(array('/', ':', '\\', '"', ' with data set '), '_', $testName).'.html';
-            file_put_contents($file, $crawler->html());
-            $msg .= sprintf('details see in %s)', $file);
+            if (count($crawler) > 0) {
+                file_put_contents($file, $crawler->html());
+                $msg .= sprintf('details see in %s)', $file);
+            } else {
+                $msg .= sprintf('no details because no html answer');
+            }
         } catch (\Exception $e) {
             $msg .= sprintf('no details because writing %s failed, %s)', $file, $e);
         }
