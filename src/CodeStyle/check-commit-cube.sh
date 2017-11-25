@@ -168,7 +168,8 @@ findUnwantedTerms () {
     fi
     return $r
 }
-invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  | dump\(|\\$\\$"
+invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  "
+invPatts="$invPatts| dump\(|\\$\\$|->get\([^)]*::[^)]*)|->get\([^)]*\\\\[^)]*\)"
 if findUnwantedTerms '*.php' "$invPatts"
 then
     cat <<'TO_HERE'
@@ -179,6 +180,8 @@ use this:
   * SomeType::class                  instead of new SomeType() in ->add( and ->createForm('
   * remove debugging                 dump(...) breaks non-debug run
   * ${$name_of_var}                  instead of $$name_of_var (in case you really want this)
+  * function __construct(Class $var  instead of ->get(ClassName) in services (auto wiring)
+  * function xxAction(Class $var, .. instead of ->get(ClassName) in Controllers (auto wiring)
 TO_HERE
     showWarning
 fi
