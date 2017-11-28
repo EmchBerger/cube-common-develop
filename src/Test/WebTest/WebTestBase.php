@@ -141,6 +141,7 @@ class WebTestBase extends WebTestCase
                     '\\' => '_',
                     '"' => '_',
                     ' with data set ' => '_',
+                    '#' => 'no',
                 ));
                 $file = $fileDir.$fileName.'.html';
                 file_put_contents($file, $crawler->html());
