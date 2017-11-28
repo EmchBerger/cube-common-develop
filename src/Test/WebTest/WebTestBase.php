@@ -132,10 +132,17 @@ class WebTestBase extends WebTestCase
             } elseif (!self::$client->getContainer()) {
                 self::$client->getKernel()->boot();
             }
-            $file = self::$client->getContainer()->getParameter('kernel.cache_dir').'/tests_temp/';
-            file_exists($file) || mkdir($file, 0700);
-            $file .= str_replace(array('/', ':', '\\', '"', ' with data set '), '_', $testName).'.html';
+            $fileDir = self::$client->getContainer()->getParameter('kernel.cache_dir').'/tests_temp/';
+            file_exists($fileDir) || mkdir($fileDir, 0700);
             if (count($crawler) > 0) {
+                $fileName = strtr($testName, array(
+                    '/' => '_',
+                    ':' => '_',
+                    '\\' => '_',
+                    '"' => '_',
+                    ' with data set ' => '_',
+                ));
+                $file = $fileDir.$fileName.'.html';
                 file_put_contents($file, $crawler->html());
                 $msg .= sprintf('details see in %s)', $file);
             } else {
