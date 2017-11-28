@@ -197,9 +197,15 @@ class WebTestBase extends WebTestCase
             return $r;
         } catch (\PHPUnit_Framework_SkippedTestError $e) {
             throw $e; // no check for skipped tests
+        } catch (\PHPUnit\Framework\SkippedTestError $e) {
+            throw $e; // no check for skipped tests
         } catch (\PHPUnit_Framework_IncompleteTestError $e) {
             throw $e; // no check for incomplete tests
+        } catch (\PHPUnit\Framework\IncompleteTestError $e) {
+            throw $e; // no check for incomplete tests
         } catch (\PHPUnit_Framework_RiskyTestError $e) {
+            throw $e; // no check for more phpunit failures
+        } catch (\PHPUnit\Framework\RiskyTestError $e) {
             throw $e; // no check for more phpunit failures
         } catch (\Exception $e) {
             $e = $this->maybeCheckFailureProblem($e);
