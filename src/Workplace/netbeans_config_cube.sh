@@ -34,6 +34,8 @@ then # netbeans is installed
     }
     installNetbeansSettings & # run in background, TODO do not show job id
     disown -h # is not killed on exit of shell
+else
+    nbInstall=''
 fi
 
 installGitHook () {
