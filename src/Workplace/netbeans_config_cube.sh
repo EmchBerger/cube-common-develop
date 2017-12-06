@@ -7,13 +7,21 @@ set -o nounset
 if [ -d nbproject ] || [ -d ~/.netbeans/ ] || type netbeans >/dev/null 2>&1
 then # netbeans is installed
     nbInstall=1
+    checkNbFiles () {
+        git -C nbproject --no-pager diff --exit-code || echo check your netbeans configuration
+    }
     installNetbeansSettings () {
+        local nbUrl
         nbUrl=https://github.com/SimonHeimberg/nbproject_4cube
         {
             if [ -d nbproject/.git ]
             then # git repo in place
                 git -C nbproject fetch
-                git -C nbproject merge --ff-only
+                if ! git -C nbproject merge --ff-only
+                then
+                    checkNbFiles
+                    git -C nbproject log --graph --no-pager HEAD~..master
+                fi
             elif [ ! -d nbproject ]
             then # nothing there
                 git clone "$nbUrl" nbproject
@@ -26,9 +34,9 @@ then # netbeans is installed
                 mv -i .tmp_nbproject/.git nbproject && # place repo into config
                 rm -r .tmp_nbproject
                 git -C nbproject diff --name-only --diff-filter=D | xargs -r -d '\n' git -C nbproject checkout -- # checkout missing files
-                git -C nbproject --no-pager diff --exit-code || echo check your netbeans configuration
+                checkNbFiles
             fi
-        } | sed -e '1 i\\nupdating nbproject ...'
+        } | sed -e '1 i\\nupdating nbproject ...' -e 's/^/  /'
         cp -n nbproject/project.xml.dist nbproject/project.xml # copy project xml if it does not exist
         echo updating nbproject finished
     }
