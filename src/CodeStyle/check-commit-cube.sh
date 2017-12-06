@@ -354,6 +354,17 @@ phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
 $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
 # config is in project dir
 
+#check php files with phpstan
+checkPhpStan () {
+    local binStan confStan
+    binStan=$(getInVendorBin phpstan)
+    [ -f "$binStan" ] || return 0
+    [ -f .phpstan.neon ] && confStan='-c .phpstan.neon' || confStan=''
+    $xArgs0 -- "$binStan" analyse $confStan
+}
+$gitListFiles -- '*.php' | checkPhpStan || showWarning
+
+
 #check shell scripts
 $gitListFiles -- '*.sh' | $xArgs0n1 -- bash -n # syntax
 $whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
