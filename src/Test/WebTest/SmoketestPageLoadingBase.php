@@ -58,7 +58,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         switch ($code) {
             case Response::HTTP_OK:
                 if (isset($info->redirect)) {
-                    $this->AssertTrue(false, 'expected redirect to '.$info->redirect);
+                    $this->assertTrue(false, 'expected redirect to '.$info->redirect);
                 }
                 break;
             case Response::HTTP_NOT_FOUND:
@@ -130,7 +130,7 @@ class SmoketestPageLoadingBase extends WebTestBase
             $matched = $this->matchAnyOf($aw['code'], $aw['msg'], $info->knownProblem);
             if (null === $matched) {
                 // no match, fail
-                $this->AssertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
+                $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
             } else {
                 // problem known and matches description
                 $this->markTestSkipped('known problem ('.$matched['name'].'): '.$aw['msg']);
@@ -414,7 +414,9 @@ class SmoketestPageLoadingBase extends WebTestBase
                     return $any;
                 }
             } catch (\PHPUnit_Framework_Error_Warning $w) {
-                new \Exception('Invalid "'.$name.'.msg" in _special.yml, must be a pattern. '.$w->getMessage());
+                throw new \Exception('Invalid "'.$name.'.msg" in _special.yml, must be a pattern. '.$w->getMessage());
+            } catch (\PHPUnit\Framework\Error\Warning $w) {
+                throw new \Exception('Invalid "'.$name.'.msg" in _special.yml, must be a pattern. '.$w->getMessage());
             }
         }
 

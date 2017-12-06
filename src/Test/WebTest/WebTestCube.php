@@ -203,7 +203,7 @@ class WebTestCube extends WebTestBase
             $this->clickSuccessful($client, $link);
             ++$i;
         }
-        $this->assertGreaterOrEqual($minLinks, $i, 'number of checked links');
+        $this->assertGreaterThanOrEqual($minLinks, $i, 'number of checked links');
 
         return $checkLinks;
     }

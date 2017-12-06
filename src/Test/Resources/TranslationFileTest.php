@@ -46,7 +46,7 @@ class TranslationFileTest extends KernelTestCase
                     $this->markTestIncomplete('Incomplete translation, '.$msg);
                 }
             }
-            $this->AssertTrue($r, $msg);
+            $this->assertTrue($r, $msg);
         }
     }
 
