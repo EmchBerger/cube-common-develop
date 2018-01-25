@@ -314,7 +314,8 @@ syConsoleXargsN1 () {
 
 
 #check database (when an annotation or a variable changed in an entity)
-$gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- 'src/*/Entity/' || syConsoleRun doctrine:schema:validate || showWarning
+$gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- '*/Entity/*.php' ||
+    syConsoleRun doctrine:schema:validate || showWarning
 
 #check twig
 $gitListFiles -- '*.twig' | syConsoleXargs lint:twig || warnWhenMissing
