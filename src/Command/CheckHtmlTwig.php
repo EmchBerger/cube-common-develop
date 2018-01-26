@@ -16,7 +16,8 @@ class CheckHtmlTwig extends Command
     {
         $this
             ->setName('lint:html.twig')
-            ->setDescription(<<<EoMsg
+            ->setDescription('checks html code in twig files (see WARNING)')
+            ->setHelp(<<<EoMsg
 checks html code in twig files
 
 WARNING: reports too many failures

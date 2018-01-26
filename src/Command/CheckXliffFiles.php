@@ -15,7 +15,8 @@ class CheckXliffFiles extends Command
     {
         $this
             ->setName('lint:xliff:cubestyle')
-            ->setDescription(<<<EoMsg
+            ->setDescription('checks some styles in xliff files')
+            ->setHelp(<<<EoMsg
 checks some styles in xliff files
   id is (shortened) source
   source contains parameters of trans
