@@ -14,17 +14,17 @@ class SymfonyCommands
 
     public static function initCommands()
     {
-        $bootstrap = null;
+        $autoload = null;
         $appDir = __DIR__.'/../../../../../';
-        $bootstrapDirs = array('./var/', './app/', $appDir.'var/', $appDir.'app/');
-        $bootstrapDirs[] = $bootstrapDirs[0];
-        foreach ($bootstrapDirs as $bootstrapDir) {
-            $bootstrap = $bootstrapDir.'bootstrap.php.cache';
-            if (file_exists($bootstrap)) {
+        $autoloadDirs = array('./vendor/', $appDir.'vendor/');
+        $autoloadDirs[] = $autoloadDirs[0];
+        foreach ($autoloadDirs as $autoloadDir) {
+            $autoload = $autoloadDir.'autoload.php';
+            if (file_exists($autoload)) {
                 break;
             }
         }
-        require_once $bootstrap;
+        require_once $autoload;
 
         $application = new Application();
         self::addCcdCommands($application);

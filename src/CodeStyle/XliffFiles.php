@@ -20,7 +20,7 @@ class XliffFiles
         $crawler = new Crawler();
         $crawler->addXMLContent($content);
         $fixed = array();
-        $runs = $crawler->filter('body trans-unit')->each(function ($unit) use (&$fixed) {
+        $runs = $crawler->filter('body trans-unit')->each(function (Crawler $unit) use (&$fixed) {
             self::checkUnit($unit, $fixed);
         });
         if ($fixed) {
@@ -55,7 +55,7 @@ class XliffFiles
         return $fixed;
     }
 
-    private static function checkUnit($unit, array &$fixed)
+    private static function checkUnit(Crawler $unit, array &$fixed)
     {
         $id = $unit->attr('id');
         $sourceTxt = $unit->filter('source')->text();
