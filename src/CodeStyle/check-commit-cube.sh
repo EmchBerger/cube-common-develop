@@ -16,13 +16,13 @@ elif [[ "$1" == --* ]]
 then
     echo 'basic checks on stashed (or committed) changes'
     echo
-    echo usage: $0 '[--changed|REV]'
+    echo usage: "$0" '[--changed|REV]'
     exit
 elif [ -n "$1" ]
 then
     against=$(git rev-parse --verify "$1")
-    [ -z $against ] && exit 64
-    echo checking against revision $against
+    [ -z "$against" ] && exit 64
+    echo checking against revision "$against"
 fi
 
 if [ -n "$against" ]
@@ -70,6 +70,7 @@ showWarning() {
         ;;
         esac
         read -r -t 1 FLUSH || true < /dev/tty # flush input
+        true "$FLUSH" # is a dummy variable
         echo -n ' [ca]? '
     done
 }
@@ -145,7 +146,7 @@ git diff --check $cachedDiff $mergeAgainst -- || showWarning
 if git diff $cachedDiff "$against" --raw -- | grep ':...[^7].. ...7..'
 then
         echo 'above files with EXEC bit set now, is this expected?'
-        echo 'if not, run $ chmod a-x $(git diff --cached --name-only)'
+        echo 'if not, run $ chmod a-x $''(git diff --cached --name-only)'
         showWarning
 fi
 
@@ -258,7 +259,7 @@ checkTranslations () {
         return $?
     fi
 
-    runPhpUnit $transTest || warnWhenMissing
+    runPhpUnit "$transTest" || warnWhenMissing
 }
 
 #check translation
@@ -314,7 +315,8 @@ syConsoleXargsN1 () {
 
 
 #check database (when an annotation or a variable changed in an entity)
-$gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- 'src/*/Entity/' || syConsoleRun doctrine:schema:validate || showWarning
+$gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- '*/Entity/*.php' ||
+    syConsoleRun doctrine:schema:validate || showWarning
 
 #check twig
 $gitListFiles -- '*.twig' | syConsoleXargs lint:twig || warnWhenMissing
