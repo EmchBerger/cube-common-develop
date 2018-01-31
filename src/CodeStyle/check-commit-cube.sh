@@ -371,6 +371,11 @@ $gitListFiles -- '*.php' | checkPhpStan || showWarning
 $gitListFiles -- '*.sh' | $xArgs0n1 -- bash -n # syntax
 $whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
 
+if [ -z "$(git ls-files composer.lock)" ] && [ $(( $(date +%s)-$(date -r composer.lock +%s) )) -gt 86400 ]
+then
+    printf '\n  untracked composer.lock is older than 6 days, run composer update\n\n' | grep --color -e '' -e 'composer .*'
+fi
+
 if [ "0" != "$retVal" ]
 then
     echo failed
