@@ -360,7 +360,11 @@ $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || show
 checkPhpStan () {
     local binStan confStan
     binStan=$(getInVendorBin phpstan)
-    [ -f "$binStan" ] || return 0
+    if [ ! -f "$binStan" ]
+    then
+        binStan=$(find -H ../../*/*/vendor/bin/phpstan -maxdepth 0 -type f -executable -print -quit)
+        [ -f "$binStan" ] || binStan=./vendor/bin/phpstan
+    fi
     [ -f .phpstan.neon ] && confStan='-c .phpstan.neon' || confStan=''
     $xArgs0 -- "$binStan" analyse $confStan
 }
