@@ -368,7 +368,7 @@ checkPhpStan () {
     [ -f .phpstan.neon ] && confStan='-c .phpstan.neon' || confStan=''
     $xArgs0 -- "$binStan" analyse $confStan
 }
-$gitListFiles -- '*.php' | checkPhpStan || showWarning
+$whenNoMerge $gitListFiles -- '*.php' | checkPhpStan || showWarning
 
 
 #check shell scripts
