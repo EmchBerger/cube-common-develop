@@ -199,6 +199,17 @@ TO_HERE
     showWarning
 fi
 
+invPatts="public: true"
+if findUnwantedTerms 'app/config/services.yml' "$invPatts"
+then
+    cat <<'TO_HERE'
+  * do NOT make services public, use auto wiring instead
+    - function __construct(Class $var  instead of ->get(ClassName) in services
+    - function xxAction(Class $var, .. instead of ->get(ClassName) in Controllers
+TO_HERE
+    showWarning
+fi
+
 # check files to commit for local changes
 if [ -n "$cachedDiff" ] && ! $gitListFiles | $xArgs0 git diff-files --name-only --exit-code --
 then
