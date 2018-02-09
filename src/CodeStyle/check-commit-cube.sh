@@ -171,6 +171,7 @@ findUnwantedTerms () {
 }
 invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  "
 invPatts="$invPatts|\bdump\(|\\$\\$|->get\([^)]*::[^)]*\)|->get\([^\)]*\\\\[^\)]*\)"
+invPatts="$invPatts|[Aa]uto[- ]?generated.*please|@[a-zA-Z]* type\b"
 if findUnwantedTerms '*.php' "$invPatts"
 then
     cat <<'TO_HERE'
@@ -183,6 +184,7 @@ use this:
   * ${$name_of_var}                  instead of $$name_of_var (in case you really want this)
   * function __construct(Class $var  instead of ->get(ClassName) in services (auto wiring)
   * function xxAction(Class $var, .. instead of ->get(ClassName) in Controllers (auto wiring)
+  * write real doc (or delete)       no default doc (like auto-generated, @param type)
 TO_HERE
     showWarning
 fi
