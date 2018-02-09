@@ -159,8 +159,8 @@ findUnwantedTerms () {
     avoidColors='ms=01;33'
     filePatt="$1"
     invPatts="$2"
-
-    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$filePatt" | grep -v -E '^[^-+ ]*-.*('"$invPatts)" |
+    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$filePatt" |
+        grep -v -E '^[^-+ ]{0,9}-.*('"$invPatts)" | ### filter out matches on "- " line, respecting gits coloring
         GREP_COLORS="$avoidColors" grep --color=always -C 16 -E "$invPatts"
     r=$?
     if [ 0 -eq $r ]
@@ -170,7 +170,7 @@ findUnwantedTerms () {
     return $r
 }
 invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  "
-invPatts="$invPatts| dump\(|\\$\\$|->get\([^)]*::[^)]*)|->get\([^)]*\\\\[^)]*\)"
+invPatts="$invPatts|\bdump\(|\\$\\$|->get\([^)]*::[^)]*\)|->get\([^\)]*\\\\[^\)]*\)"
 if findUnwantedTerms '*.php' "$invPatts"
 then
     cat <<'TO_HERE'
