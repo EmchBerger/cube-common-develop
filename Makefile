@@ -41,7 +41,12 @@ check-branch: ## checks all files changed since origin/development
 # validate targets
 
 validate-stan: ## runs phpstan (missing variables, wrong case, ...)
-	./vendor/bin/phpstan analyse -c .phpstan.neon src/
+ifeq (,$(wildcard(.phpstan.neon)))
+stanConfig=
+else
+stanConfig= -c .phpstan.neon
+endif
+	./vendor/bin/phpstan analyse $(stanConfig) src/
 .PHONY: validate-stan
 
 validate-codestyle: ## runs phpcs (code style)
