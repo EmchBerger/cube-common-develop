@@ -42,6 +42,9 @@
             "src/Workplace/netbeans_config_cube.sh"
         ]
     },
+    "bin": [
+        "src/CodeStyle/check-commit-cube.sh"
+    ],
     "config": {
         "sort-packages": true
     }
