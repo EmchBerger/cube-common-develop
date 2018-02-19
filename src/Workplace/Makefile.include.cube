@@ -1,0 +1,3 @@
+update-makefile-from-cube-common-bundle:
+	#TODO
+	@echo nothing to update
