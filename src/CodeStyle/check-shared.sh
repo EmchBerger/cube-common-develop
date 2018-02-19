@@ -73,7 +73,7 @@ findPhpBinary () {
 }
 
 runPhpUnit () {
-    if [ -z "$phpUnit" ]
+    if [ -z "${phpUnit:-}" ]
     then
         phpUnit=$(getInVendorBin phpunit)
         if [ ! -f "$phpUnit" ]
@@ -115,7 +115,7 @@ findSyConsole () {
         fi
     fi
 
-    if [ -n "$syConsoleError" ]
+    if [ -n "${syConsoleError:-}" ]
         then return 127
     fi
 }
@@ -178,7 +178,7 @@ runCheckComposer() {
                 break
             fi
         done
-        if [ -n "$composerCmd" ]
+        if [ -n "${composerCmd:-}" ]
         then
             true # is set
         elif [ -n "$(type -t composer.phar)" ] || [ -z "$(type -t composer)" ]
