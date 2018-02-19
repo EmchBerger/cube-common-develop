@@ -26,7 +26,8 @@ then
 fi
 
 if [ -n "$against" ]
-    then true
+then
+    against="$against~" # since parent of it
 elif git rev-parse --verify HEAD >/dev/null 2>&1
 then
     against=HEAD
