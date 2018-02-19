@@ -5,6 +5,7 @@
 #
 # Does various checks on the files to be checked in
 
+thisDir=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 
 # handle args
 cachedDiff=--cached
@@ -48,47 +49,8 @@ else
 fi
 
 gitListFiles="git diff $cachedDiff --name-only --diff-filter ACMTUB -z $against"
-xArgs0='xargs -0 -r'
-xArgs0n1="$xArgs0 -n 1 -P $(nproc)"
 
-retVal=0
-
-showWarning() {
-    local AW FLUSH
-    if [ -n "$REPORTONLY" ]
-    then
-        retVal=1
-        echo '--------- continueing check ---------'
-        return
-    fi
-    echo -n '  continue anyway with c, abort with a: '
-    while true
-    do
-        read -r -n 1 AW < /dev/tty
-        case $AW in
-        c)
-            echo
-            return
-        ;;
-        a|q)
-            echo '  Abort'
-            exit 2
-        ;;
-        esac
-        read -r -t 1 FLUSH || true < /dev/tty # flush input
-        true "$FLUSH" # is a dummy variable
-        echo -n ' [ca]? '
-    done
-}
-warnWhenMissing () {
-    local lastRet=$?
-    if [ 127 -eq $lastRet ] # not found error
-    then
-        showWarning
-        return $?
-    fi
-    return $lastRet
-}
+source $thisDir/check-shared.sh
 
 checkScriptChanged() {
     #check if script has changed
@@ -123,9 +85,6 @@ checkScriptChanged() {
     fi
 }
 $gitListFiles --quiet || checkScriptChanged # only when files to check
-
-# Redirect output to stderr.
-exec 1>&2
 
 # Note that the use of brackets around a tr range is ok here, (it's
 # even required, for portability to Solaris 10's /usr/bin/tr), since
@@ -229,178 +188,11 @@ fi
 
 [ -f .git/MERGE_HEAD ] && whenNoMerge=true || whenNoMerge='' #runs "true cmd" when in a merge, the cmd else
 
-#valid php ?
-$gitListFiles -- '*.php' | $xArgs0n1 -- php -l
-
-getInVendorBin () {
-    local binDir
-    binDir=vendor/bin
-    if [ ! -f "$binDir/$1" ] && [ -f "bin/$1" ]
-    then
-        binDir=bin
-    fi
-    echo "$binDir/$1"
-}
-
-[ -z "$phpBinary" ] && phpBinary=c
-findPhpBinary () {
-    if [ c != "$phpBinary" ]
-    then
-        true
-    elif ls ./???/cache/ccPhpVersion >/dev/null 2>&1
-    then
-        phpBinary="$(type -p "$(cat ./???/cache/ccPhpVersion | head -n 1)")"
-    else
-        phpBinary=''
-    fi
-}
-
-runPhpUnit () {
-    if [ -z "$phpUnit" ]
-    then
-        phpUnit=$(getInVendorBin phpunit)
-        if [ ! -f "$phpUnit" ]
-        then
-            phpUnit='phpunit'
-        fi
-    fi
-
-    SYMFONY_DEPRECATIONS_HELPER=disabled "$phpUnit" "$@"
-}
-
-checkTranslations () {
-    local transTest
-    transTest="$(find tests/ src/ vendor/cubetools/ -type f -name 'Translation*Test.php' -print -quit)"
-    if [ ! -f "$transTest" ]
-    then
-        echo can not check translations, test 'Translation*Test.php' is missing.
-        showWarning
-        return $?
-    fi
-
-    runPhpUnit "$transTest" || warnWhenMissing
-}
-
-#check translation
-$gitListFiles --quiet  -- '*.xliff' '*.xlf' || checkTranslations
-
-findSyConsole () {
-    if [ -z "$syConsole" ]
-    then
-        syConsole=bin/console
-        if [ -f "$syConsole" ]
-            then true # OK
-        elif [ -f app/console ]
-            then syConsole=app/console
-        else
-            syConsoleError="console not available to run $syConsole"
-        fi
-    fi
-
-    if [ -n "$syConsoleError" ]
-        then return 127
-    fi
-}
-
-syConsoleRun() {
-    if ! findSyConsole
-    then
-        echo "$syConsoleError" "$@"
-        return 127 # not found error
-    fi
-    findPhpBinary
-    $phpBinary "$syConsole" "$@"
-}
-syConsoleXargs () {
-    local oneChar
-    findPhpBinary
-    if ! findSyConsole  && read -r -N 1 oneChar
-    then # no console but input, trigger error
-        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@"
-        return 127
-    fi
-    $xArgs0 -- $phpBinary "$syConsole" "$@"
-}
-syConsoleXargsN1 () {
-    local oneChar
-    findPhpBinary
-    if ! findSyConsole && read -r -N 1 oneChar
-    then # no console but input, trigger error listing files in one command
-        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@" for
-        return 127
-    fi
-    $xArgs0n1 -- $phpBinary "$syConsole" "$@"
-}
-
-
-#check database (when an annotation or a variable changed in an entity)
-$gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- '*/Entity/*.php' ||
-    syConsoleRun doctrine:schema:validate || showWarning
-
-#check twig
-$gitListFiles -- '*.twig' | syConsoleXargs lint:twig || warnWhenMissing
-
-#check yaml
-$gitListFiles -- '*.yml' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
-
-#check composer
-if ! $gitListFiles --quiet -- 'composer.*'
-then
-    findPhpBinary
-    composerCmd=''
-    for checkDir in . .. ../..
-    do
-        if [ -f $checkDir/composer.phar ]
-        then
-           composerCmd="${phpBinary:-php} $checkDir/composer.phar"
-           break
-        fi
-    done
-    if [ -n "$composerCmd" ]
-    then
-        true # is set
-    elif [ -n "$(type -t composer.phar)" ] || [ -z "$(type -t composer)" ]
-    then
-        composerCmd=$(type -p composer.phar)
-        composerCmd="${phpBinary:-php} ${composerCmd:-composer.phar}"
-    else
-        composerCmd=$(type -p composer)
-        composerCmd="${phpBinary:-php} ${composerCmd:-composer}"
-    fi
-    $composerCmd validate || showWarning
-fi
-
-#check style
-phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
-$whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
-# config is in project dir
-
-#check php files with phpstan
-checkPhpStan () {
-    local binStan confStan
-    binStan=$(getInVendorBin phpstan)
-    if [ ! -f "$binStan" ]
-    then
-        binStan=$(find -H ../../*/*/vendor/bin/phpstan -maxdepth 0 -type f -executable -print -quit)
-        [ -f "$binStan" ] || binStan=./vendor/bin/phpstan
-    fi
-    [ -f .phpstan.neon ] && confStan='-c .phpstan.neon' || confStan=''
-    $xArgs0 -- "$binStan" analyse $confStan
-}
-$whenNoMerge $gitListFiles -- '*.php' | checkPhpStan || showWarning
-
-
-#check shell scripts
-$gitListFiles -- '*.sh' | $xArgs0n1 -- bash -n # syntax
-$whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
+runSharedChecks
 
 if [ -z "$(git ls-files composer.lock)" ] && [ $(( $(date +%s)-$(date -r composer.lock +%s) )) -gt 864000 ]
 then
     printf '\n  untracked composer.lock is older than 10 days, run composer update\n\n' | grep --color -e '' -e 'composer .*'
 fi
 
-if [ "0" != "$retVal" ]
-then
-    echo failed
-    exit $retVal
-fi
+setReturnValue
