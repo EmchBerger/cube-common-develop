@@ -20,7 +20,12 @@ then
     exit
 elif [ -n "$1" ]
 then
-    against=$(git rev-parse --verify "$1")
+    if [ "${1%..}" != "$1" ]
+    then
+        against="$(git log --reverse --format=format:%H "$1"  | head -n 1)"
+    else
+        against=$(git rev-parse --verify "$1")
+    fi
     [ -z "$against" ] && exit 64
     echo checking against revision "$against"
 fi
