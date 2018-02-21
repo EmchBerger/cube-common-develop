@@ -8,6 +8,9 @@ xArgs0n1="$xArgs0 -n 1 -P $(nproc)"
 
 retVal=0
 
+[ -z "${gitListFiles:?gitListFiles must be set}" ] && gitListFiles=valueIsCheckedNow
+[ -z "${whenNoMerge-}" ] && whenNoMerge=''
+
 showWarning() {
     local AW FLUSH
     if [ -n "${REPORTONLY:-}" ]
@@ -194,8 +197,8 @@ runCheckComposer() {
 }
 
 runCheckPhpcs() {
-    phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
-    $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
+    phpCs=("$(getInVendorBin phpcs)" --colors --report-width=auto -l -p)
+    $whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- "${phpCs[@]}" || showWarning
     # config is in project dir
 }
 

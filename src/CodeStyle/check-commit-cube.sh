@@ -17,6 +17,7 @@ then
     sharedDir=src/CodeStyle
 else
     sharedDir="$thisDir"
+    # shellcheck source=./src/CodeStyle/check-shared.sh
     source "$sharedDir/check-shared.sh" # to trigger error
 fi
 
@@ -61,9 +62,17 @@ else
     mergeAgainst=$against
 fi
 
+[ -f .git/MERGE_HEAD ] && whenNoMerge=true || whenNoMerge='' #runs "true cmd" when in a merge, the cmd else
+true $whenNoMerge # is used in check-shared.sh
+
+
+
 gitListFiles="git diff $cachedDiff --name-only --diff-filter ACMTUB -z $against"
 
-source $sharedDir/check-shared.sh
+# shellcheck source=./src/CodeStyle/check-shared.sh
+source "$sharedDir/check-shared.sh"
+
+[ -z "${xArgs0:?xArgs0 missing}" ] && xArgs0=valueIsCheckedNow
 
 checkScriptChanged() {
     #check if script has changed
@@ -115,7 +124,7 @@ EOF
     showWarning
 fi
 
-set -e
+set -o errexit -o nounset
 
 # If there are whitespace errors, print the offending file names and warn.
 git diff --check $cachedDiff $mergeAgainst -- || showWarning
@@ -198,8 +207,6 @@ then
     showWarning
     ## or stash changes and unstash at end, see http://daurnimator.com/post/134519891749/testing-pre-commit-with-git
 fi
-
-[ -f .git/MERGE_HEAD ] && whenNoMerge=true || whenNoMerge='' #runs "true cmd" when in a merge, the cmd else
 
 runSharedChecks
 

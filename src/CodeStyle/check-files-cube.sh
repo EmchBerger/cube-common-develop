@@ -30,7 +30,7 @@ listArgFiles() {
             grepArgs+=(-e "${arg//\*/.*}")
             hasPatt=1
         esac
-   done
+    done
     if [ -z $hasPatt ]
     then
         grepArgs+=(-e '')
