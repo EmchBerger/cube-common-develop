@@ -3,9 +3,6 @@
 #
 # shared code for check-*.sh scripts
 
-xArgs0='xargs -0 -r'
-xArgs0n1="$xArgs0 -n 1 -P $(nproc)"
-
 retVal=0
 
 [ -z "${gitListFiles:?gitListFiles must be set}" ] && gitListFiles=valueIsCheckedNow
@@ -48,6 +45,28 @@ warnWhenMissing () {
     return $lastRet
 }
 
+cmdPrefix="   $(tput setaf 6)# running:$(tput setaf 15)" || true
+showCommandXArg() {
+    local append=$1
+    shift
+    [ "--" = "$1" ] && shift # remove leading --
+    sed -z -e '1 {' -e h -e "/./ s@^@$cmdPrefix ${*//@/?} @" -e '/./ s/$/ '"$append"'...\n/' -e 'w /dev/stderr' -e x -e '}'
+}
+
+showCommand() {
+    echo "$cmdPrefix" "$@"
+}
+
+xArgs0cmd='xargs -0 -r'
+runXArgs0() {
+    showCommandXArg '' "$@" | $xArgs0cmd "$@"
+}
+runXArgs0n1() {
+    showCommandXArg '; ' "$@" | $xArgs0cmd -n 1 -P "$(nproc)" "$@"
+}
+xArgs0=runXArgs0
+xArgs0n1=runXArgs0n1
+
 runValidPhp() {
     $gitListFiles -- '*.php' | $xArgs0n1 -- php -l
 }
@@ -85,6 +104,7 @@ runPhpUnit () {
         fi
     fi
 
+    showCommand phpunit "$@"
     SYMFONY_DEPRECATIONS_HELPER=disabled "$phpUnit" "$@"
 }
 
@@ -130,6 +150,7 @@ syConsoleRun() {
         return 127 # not found error
     fi
     findPhpBinary
+    showCommand "$syConsole" "$@"
     $phpBinary "$syConsole" "$@"
 }
 syConsoleXargs () {
@@ -192,6 +213,7 @@ runCheckComposer() {
             composerCmd=$(type -p composer)
             composerCmd="${phpBinary:-php} ${composerCmd:-composer}"
         fi
+        showCommand composer validate
         $composerCmd validate || showWarning
     fi
 }
