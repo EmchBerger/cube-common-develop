@@ -5,7 +5,20 @@
 #
 # Does various checks on the files to be checked in
 
-thisDir=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+thisDir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+if [ -f "$thisDir/check-shared.sh" ]
+then
+    sharedDir="$thisDir"
+elif [ -f vendor/cubetools/cube-common-bundle/src/CodeStyle/check-shared.sh ]
+then
+    sharedDir=vendor/cubetools/cube-common-bundle/src/CodeStyle
+elif [ -f src/CodeStyle/check-shared.sh ]
+then
+    sharedDir=src/CodeStyle
+else
+    sharedDir="$thisDir"
+    source "$sharedDir/check-shared.sh" # to trigger error
+fi
 
 # handle args
 cachedDiff=--cached
@@ -50,7 +63,7 @@ fi
 
 gitListFiles="git diff $cachedDiff --name-only --diff-filter ACMTUB -z $against"
 
-source $thisDir/check-shared.sh
+source $sharedDir/check-shared.sh
 
 checkScriptChanged() {
     #check if script has changed
