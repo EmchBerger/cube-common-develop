@@ -10,8 +10,10 @@ thisDir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 fileList=$(echo "$@" | xargs -r -n 1 --)
 
 listArgFiles() {
-    local arg hasPatt
+    local arg hasPatt hasQuiet
     local -a grepArgs
+    hasPatt=''
+    hasQuiet=''
     if [ 0 -eq $# ]
         then return 1
     fi
@@ -22,6 +24,9 @@ listArgFiles() {
             shift # skip next also
             ;;
         --)
+            ;;
+        --quiet|-q)
+            hasQuiet=1
             ;;
         --*)
             grepArgs+=("$arg")
@@ -35,7 +40,12 @@ listArgFiles() {
     then
         grepArgs+=(-e '')
     fi
-    echo "$fileList" | grep --line-regexp "${grepArgs[@]}" | tr '\n' '\0'
+    if [ "1" = "$hasQuiet" ]
+    then
+        ! echo "$fileList" | grep --line-regexp --quiet "${grepArgs[@]}"
+    else
+        echo "$fileList" | grep --line-regexp "${grepArgs[@]}" | tr '\n' '\0'
+    fi
 }
 
 gitListFiles="listArgFiles" # shellcheck ignore=SC2034
