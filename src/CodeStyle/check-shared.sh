@@ -214,7 +214,11 @@ runCheckComposer() {
             composerCmd="${phpBinary:-php} ${composerCmd:-composer}"
         fi
         showCommand composer validate
-        $composerCmd validate || showWarning
+        $composerCmd validate || {
+            echo
+            echo 'to resolve a merge conflict, run "composer update --lock", updating the dependencies is not desired' | grep --color -e --lock
+            showWarning
+        }
     fi
 }
 
