@@ -15,6 +15,10 @@ then
 elif [ -f src/CodeStyle/check-shared.sh ]
 then # in cube-common-develop
     sharedDir=src/CodeStyle
+elif [ -f vendor/cubetools/cube-common-develop/src/CodeStyle/check-commit-cube.sh ]
+then # old cube-common-develop, fallback on downgrade of cube-common-develop
+    source vendor/cubetools/cube-common-develop/src/CodeStyle/check-commit-cube.sh
+    exit
 else
     sharedDir="$thisDir"
     # shellcheck source=./src/CodeStyle/check-shared.sh
