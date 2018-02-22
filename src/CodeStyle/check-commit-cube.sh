@@ -91,7 +91,10 @@ checkScriptChanged() {
         return $?
     fi
     [ -z "$ccScriptPath" ] && ccScriptPath="${BASH_SOURCE[0]}" # set to this scripts path if not set
-    if [ "${ccScriptPath:0:1}" != . ]
+    if [ "$ccScriptPath" -ef "$ccOrigPath" ]
+    then
+        true linkToOrig # points to ccOrigPath
+    elif [ "${ccScriptPath:0:1}" != . ]
     then
         echo some failure, wrong dest found, please set ccScriptPath to the hook script >&2
         showWarning
