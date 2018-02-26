@@ -5,6 +5,25 @@
 #
 # Does various checks on the files to be checked in
 
+thisDir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+if [ -f "$thisDir/check-shared.sh" ]
+then
+    sharedDir="$thisDir"
+elif [ -f vendor/cubetools/cube-common-develop/src/CodeStyle/check-shared.sh ]
+then
+    sharedDir=vendor/cubetools/cube-common-develop/src/CodeStyle
+elif [ -f src/CodeStyle/check-shared.sh ]
+then # in cube-common-develop
+    sharedDir=src/CodeStyle
+elif [ -f vendor/cubetools/cube-common-develop/src/CodeStyle/check-commit-cube.sh ]
+then # old cube-common-develop, fallback on downgrade of cube-common-develop
+    source vendor/cubetools/cube-common-develop/src/CodeStyle/check-commit-cube.sh
+    exit
+else
+    sharedDir="$thisDir"
+    # shellcheck source=./src/CodeStyle/check-shared.sh
+    source "$sharedDir/check-shared.sh" # to trigger error
+fi
 
 # handle args
 cachedDiff=--cached
@@ -20,13 +39,19 @@ then
     exit
 elif [ -n "$1" ]
 then
-    against=$(git rev-parse --verify "$1")
+    if [ "${1%..}" != "$1" ]
+    then
+        against="$(git log --reverse --format=format:%H "$1"  | head -n 1)"
+    else
+        against=$(git rev-parse --verify "$1")
+    fi
     [ -z "$against" ] && exit 64
     echo checking against revision "$against"
 fi
 
 if [ -n "$against" ]
-    then true
+then
+    against="$against~" # since parent of it
 elif git rev-parse --verify HEAD >/dev/null 2>&1
 then
     against=HEAD
@@ -41,48 +66,17 @@ else
     mergeAgainst=$against
 fi
 
+[ -f .git/MERGE_HEAD ] && whenNoMerge=true || whenNoMerge='' #runs "true cmd" when in a merge, the cmd else
+true $whenNoMerge # is used in check-shared.sh
+
+
+
 gitListFiles="git diff $cachedDiff --name-only --diff-filter ACMTUB -z $against"
-xArgs0='xargs -0 -r'
-xArgs0n1="$xArgs0 -n 1 -P $(nproc)"
 
-retVal=0
+# shellcheck source=./src/CodeStyle/check-shared.sh
+source "$sharedDir/check-shared.sh"
 
-showWarning() {
-    local AW FLUSH
-    if [ -n "$REPORTONLY" ]
-    then
-        retVal=1
-        echo '--------- continueing check ---------'
-        return
-    fi
-    echo -n '  continue anyway with c, abort with a: '
-    while true
-    do
-        read -r -n 1 AW < /dev/tty
-        case $AW in
-        c)
-            echo
-            return
-        ;;
-        a|q)
-            echo '  Abort'
-            exit 2
-        ;;
-        esac
-        read -r -t 1 FLUSH || true < /dev/tty # flush input
-        true "$FLUSH" # is a dummy variable
-        echo -n ' [ca]? '
-    done
-}
-warnWhenMissing () {
-    local lastRet=$?
-    if [ 127 -eq $lastRet ] # not found error
-    then
-        showWarning
-        return $?
-    fi
-    return $lastRet
-}
+[ -z "${xArgs0:?xArgs0 missing}" ] && xArgs0=valueIsCheckedNow
 
 checkScriptChanged() {
     #check if script has changed
@@ -101,7 +95,10 @@ checkScriptChanged() {
         return $?
     fi
     [ -z "$ccScriptPath" ] && ccScriptPath="${BASH_SOURCE[0]}" # set to this scripts path if not set
-    if [ "${ccScriptPath:0:1}" != . ]
+    if [ "$ccScriptPath" -ef "$ccOrigPath" ]
+    then
+        true linkToOrig # points to ccOrigPath
+    elif [ "${ccScriptPath:0:1}" != . ]
     then
         echo some failure, wrong dest found, please set ccScriptPath to the hook script >&2
         showWarning
@@ -117,9 +114,6 @@ checkScriptChanged() {
     fi
 }
 $gitListFiles --quiet || checkScriptChanged # only when files to check
-
-# Redirect output to stderr.
-exec 1>&2
 
 # Note that the use of brackets around a tr range is ok here, (it's
 # even required, for portability to Solaris 10's /usr/bin/tr), since
@@ -137,7 +131,7 @@ EOF
     showWarning
 fi
 
-set -e
+set -o errexit -o nounset
 
 # If there are whitespace errors, print the offending file names and warn.
 git diff --check $cachedDiff $mergeAgainst -- || showWarning
@@ -159,8 +153,8 @@ findUnwantedTerms () {
     avoidColors='ms=01;33'
     filePatt="$1"
     invPatts="$2"
-
-    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$filePatt" | grep -v -E '^[^-+ ]*-.*('"$invPatts)" |
+    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$filePatt" |
+        grep -v -E '^[^-+ ]{0,9}-.*('"$invPatts)" | ### filter out matches on "- " line, respecting gits coloring
         GREP_COLORS="$avoidColors" grep --color=always -C 16 -E "$invPatts"
     r=$?
     if [ 0 -eq $r ]
@@ -170,7 +164,8 @@ findUnwantedTerms () {
     return $r
 }
 invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  "
-invPatts="$invPatts| dump\(|\\$\\$|->get\([^)]*::[^)]*)|->get\([^)]*\\\\[^)]*\)"
+invPatts="$invPatts|\bdump\(|\\$\\$|->get\([^)]*::[^)]*\)|->get\([^\)]*\\\\[^\)]*\)"
+invPatts="$invPatts|[Aa]uto[- ]?generated.*please|@[a-zA-Z]* type\b"
 if findUnwantedTerms '*.php' "$invPatts"
 then
     cat <<'TO_HERE'
@@ -183,6 +178,7 @@ use this:
   * ${$name_of_var}                  instead of $$name_of_var (in case you really want this)
   * function __construct(Class $var  instead of ->get(ClassName) in services (auto wiring)
   * function xxAction(Class $var, .. instead of ->get(ClassName) in Controllers (auto wiring)
+  * write real doc (or delete)       no default doc (like auto-generated, @param type)
 TO_HERE
     showWarning
 fi
@@ -199,6 +195,17 @@ TO_HERE
     showWarning
 fi
 
+invPatts="public: true"
+if findUnwantedTerms 'app/config/services.yml' "$invPatts"
+then
+    cat <<'TO_HERE'
+  * do NOT make services public, use auto wiring instead
+    - function __construct(Class $var  instead of ->get(ClassName) in services
+    - function xxAction(Class $var, .. instead of ->get(ClassName) in Controllers
+TO_HERE
+    showWarning
+fi
+
 # check files to commit for local changes
 if [ -n "$cachedDiff" ] && ! $gitListFiles | $xArgs0 git diff-files --name-only --exit-code --
 then
@@ -208,180 +215,11 @@ then
     ## or stash changes and unstash at end, see http://daurnimator.com/post/134519891749/testing-pre-commit-with-git
 fi
 
-[ -f .git/MERGE_HEAD ] && whenNoMerge=true || whenNoMerge='' #runs "true cmd" when in a merge, the cmd else
-
-#valid php ?
-$gitListFiles -- '*.php' | $xArgs0n1 -- php -l
-
-getInVendorBin () {
-    local binDir
-    binDir=vendor/bin
-    if [ ! -f "$binDir/$1" ] && [ -f "bin/$1" ]
-    then
-        binDir=bin
-    fi
-    echo "$binDir/$1"
-}
-
-[ -z "$phpBinary" ] && phpBinary=c
-findPhpBinary () {
-    if [ c != "$phpBinary" ]
-    then
-        true
-    elif ls ./???/cache/ccPhpVersion >/dev/null 2>&1
-    then
-        phpBinary="$(type -p "$(cat ./???/cache/ccPhpVersion | head -n 1)")"
-    else
-        phpBinary=''
-    fi
-}
-
-runPhpUnit () {
-    if [ -z "$phpUnit" ]
-    then
-        phpUnit=$(getInVendorBin phpunit)
-        if [ ! -f "$phpUnit" ]
-        then
-            phpUnit='phpunit'
-        fi
-    fi
-
-    SYMFONY_DEPRECATIONS_HELPER=disabled "$phpUnit" "$@"
-}
-
-checkTranslations () {
-    local transTest
-    transTest="$(find tests/ src/ vendor/cubetools/ -type f -name 'Translation*Test.php' -print -quit)"
-    if [ ! -f "$transTest" ]
-    then
-        echo can not check translations, test 'Translation*Test.php' is missing.
-        showWarning
-        return $?
-    fi
-
-    runPhpUnit "$transTest" || warnWhenMissing
-}
-
-#check translation
-$gitListFiles --quiet  -- '*.xliff' '*.xlf' || checkTranslations
-
-findSyConsole () {
-    if [ -z "$syConsole" ]
-    then
-        syConsole=bin/console
-        if [ -f "$syConsole" ]
-            then true # OK
-        elif [ -f app/console ]
-            then syConsole=app/console
-        else
-            syConsoleError="console not available to run $syConsole"
-        fi
-    fi
-
-    if [ -n "$syConsoleError" ]
-        then return 127
-    fi
-}
-
-syConsoleRun() {
-    if ! findSyConsole
-    then
-        echo "$syConsoleError" "$@"
-        return 127 # not found error
-    fi
-    findPhpBinary
-    $phpBinary "$syConsole" "$@"
-}
-syConsoleXargs () {
-    local oneChar
-    findPhpBinary
-    if ! findSyConsole  && read -r -N 1 oneChar
-    then # no console but input, trigger error
-        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@"
-        return 127
-    fi
-    $xArgs0 -- $phpBinary "$syConsole" "$@"
-}
-syConsoleXargsN1 () {
-    local oneChar
-    findPhpBinary
-    if ! findSyConsole && read -r -N 1 oneChar
-    then # no console but input, trigger error listing files in one command
-        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@" for
-        return 127
-    fi
-    $xArgs0n1 -- $phpBinary "$syConsole" "$@"
-}
-
-
-#check database (when an annotation or a variable changed in an entity)
-$gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- '*/Entity/*.php' ||
-    syConsoleRun doctrine:schema:validate || showWarning
-
-#check twig
-$gitListFiles -- '*.twig' | syConsoleXargs lint:twig || warnWhenMissing
-
-#check yaml
-$gitListFiles -- '*.yml' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
-
-#check composer
-if ! $gitListFiles --quiet -- 'composer.*'
-then
-    findPhpBinary
-    composerCmd=''
-    for checkDir in . .. ../..
-    do
-        if [ -f $checkDir/composer.phar ]
-        then
-           composerCmd="${phpBinary:-php} $checkDir/composer.phar"
-           break
-        fi
-    done
-    if [ -n "$composerCmd" ]
-    then
-        true # is set
-    elif [ -n "$(type -t composer.phar)" ] || [ -z "$(type -t composer)" ]
-    then
-        composerCmd=$(type -p composer.phar)
-        composerCmd="${phpBinary:-php} ${composerCmd:-composer.phar}"
-    else
-        composerCmd=$(type -p composer)
-        composerCmd="${phpBinary:-php} ${composerCmd:-composer}"
-    fi
-    $composerCmd validate || showWarning
-fi
-
-#check style
-phpCs="$(getInVendorBin phpcs) --colors --report-width=auto -l -p"
-$whenNoMerge $gitListFiles -- '*.php' '*.js' '*.css' | $xArgs0 -- $phpCs || showWarning
-# config is in project dir
-
-#check php files with phpstan
-checkPhpStan () {
-    local binStan confStan
-    binStan=$(getInVendorBin phpstan)
-    if [ ! -f "$binStan" ]
-    then
-        binStan=$(find -H ../../*/*/vendor/bin/phpstan -maxdepth 0 -type f -executable -print -quit)
-        [ -f "$binStan" ] || binStan=./vendor/bin/phpstan
-    fi
-    [ -f .phpstan.neon ] && confStan='-c .phpstan.neon' || confStan=''
-    $xArgs0 -- "$binStan" analyse $confStan
-}
-$whenNoMerge $gitListFiles -- '*.php' | checkPhpStan || showWarning
-
-
-#check shell scripts
-$gitListFiles -- '*.sh' | $xArgs0n1 -- bash -n # syntax
-$whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
+runSharedChecks
 
 if [ -z "$(git ls-files composer.lock)" ] && [ $(( $(date +%s)-$(date -r composer.lock +%s) )) -gt 864000 ]
 then
     printf '\n  untracked composer.lock is older than 10 days, run composer update\n\n' | grep --color -e '' -e 'composer .*'
 fi
 
-if [ "0" != "$retVal" ]
-then
-    echo failed
-    exit $retVal
-fi
+setReturnValue

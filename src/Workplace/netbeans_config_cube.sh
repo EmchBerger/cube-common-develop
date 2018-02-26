@@ -11,7 +11,7 @@ then # netbeans is installed
         git -C nbproject --no-pager diff --exit-code || echo check your netbeans configuration
     }
     installNetbeansSettings () {
-        local nbUrl
+        local nbUrl out
         nbUrl=https://github.com/SimonHeimberg/nbproject_4cube
         {
             if [ -d nbproject/.git ]
@@ -40,7 +40,8 @@ then # netbeans is installed
         cp -n nbproject/project.xml.dist nbproject/project.xml # copy project xml if it does not exist
         echo updating nbproject finished
     }
-    installNetbeansSettings & # run in background, TODO do not show job id
+    printf ' ' > /dev/tty && out=/dev/tty || out=/dev/stdout
+    installNetbeansSettings &>$out & # run in background, TODO do not show job id
     disown -h # is not killed on exit of shell
 else
     nbInstall=''
