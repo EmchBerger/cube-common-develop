@@ -1,0 +1,10 @@
+update-makefile-from-cube-common-bundle: fromFile = $(dir $(lastword $(MAKEFILE_LIST)))../../Makefile
+update-makefile-from-cube-common-bundle: toFile = ./Makefile
+update-makefile-from-cube-common-bundle:
+	@[ -f '$(toFile)' ] || { echo no '$(toFile)'; false; }
+	@[ "$$(readlink -f '$(fromFile)')" != "$$(readlink -f '$(toFile)' )" ] || { echo same dest and source; false; }
+	@awk '1==FNR,/###> cubetools\/cube-common-develop ###/ { if (S) print L; L=$$0; S=1; }' '$(toFile)' > '$(toFile).tmp~'
+	@awk '/###> cubetools\/cube-common-develop ###/,/###< cubetools\/cube-common-develop ###/' '$(fromFile)' >> '$(toFile).tmp~'
+	@awk '/###< cubetools\/cube-common-develop ###/,1==1 { if (E) print $$0; E=1; }' '$(toFile)' >> '$(toFile).tmp~'
+	@mv -b '$(toFile).tmp~' '$(toFile)'
+	@echo 'updated $(toFile) (backup is in $(toFile)~)'
