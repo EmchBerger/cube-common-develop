@@ -9,11 +9,11 @@ thisDir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 if [ -f "$thisDir/check-shared.sh" ]
 then
     sharedDir="$thisDir"
-elif [ -f vendor/cubetools/cube-common-bundle/src/CodeStyle/check-shared.sh ]
+elif [ -f vendor/cubetools/cube-common-develop/src/CodeStyle/check-shared.sh ]
 then
-    sharedDir=vendor/cubetools/cube-common-bundle/src/CodeStyle
+    sharedDir=vendor/cubetools/cube-common-develop/src/CodeStyle
 elif [ -f src/CodeStyle/check-shared.sh ]
-then
+then # in cube-common-develop
     sharedDir=src/CodeStyle
 else
     sharedDir="$thisDir"
