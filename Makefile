@@ -64,6 +64,6 @@ validate-all: validate-codestyle validate-cs-fixer validate-stan ## runs all val
 
 update-makefile-from-cube-common-bundle: ## update the makefile section from cube-common-bundle
 
-include $(cubeDevDir)/src/Workplace/Makefile.include.cube
+-include $(cubeDevDir)/src/Workplace/Makefile.include.cube
 
 ###< cubetools/cube-common-develop ###
