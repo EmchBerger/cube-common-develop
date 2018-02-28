@@ -28,7 +28,7 @@ class WebTestBaseTest extends \PHPUnit\Framework\TestCase
 
     private function getMockClient($paramObj)
     {
-        $mClient = $this->createMock(Client::class);
+        $mClient = $this->getMockBuilder(Client::class)->setMethods(array('getResponse', 'getRequest'))->getMock();
 
         $mResponse = $this->getMockBuilder('dummy\Response')->setMethods(array('getTargetUrl'))->getMock();
         $mResponse->expects($this->any())->method('getTargetUrl')->willReturnCallback(function () use ($paramObj) {
