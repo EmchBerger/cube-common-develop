@@ -76,6 +76,8 @@ gitListFiles="git diff $cachedDiff --name-only --diff-filter ACMTUB -z $against"
 # shellcheck source=./src/CodeStyle/check-shared.sh
 source "$sharedDir/check-shared.sh"
 
+showMainCommand
+
 [ -z "${xArgs0:?xArgs0 missing}" ] && xArgs0=valueIsCheckedNow
 
 checkScriptChanged() {
