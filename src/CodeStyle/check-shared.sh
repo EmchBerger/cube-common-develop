@@ -195,7 +195,7 @@ runCheckTwig() {
 }
 
 runCheckYaml() {
-    $gitListFiles -- '*.yml' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
+    $gitListFiles -- '*.yml' '*.yaml' '*.neon' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
 }
 
 findComposer() {
