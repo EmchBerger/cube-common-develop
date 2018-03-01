@@ -19,13 +19,13 @@ showWarning() {
     echo -n '  continue anyway with c, abort with a: '
     while true
     do
-        read -r -n 1 AW < /dev/tty
+        read -r -n 1 AW < /dev/tty || AW=ttyError
         case $AW in
         c)
             echo
             return
         ;;
-        a|q)
+        a|q|ttyError)
             echo '  Abort'
             exit 2
         ;;
@@ -54,7 +54,16 @@ showCommandXArg() {
 }
 
 showCommand() {
-    echo "$cmdPrefix" "$@"
+    echo "$cmdPrefix" "$@" >&2
+}
+
+showMainCommand() {
+    if [ -n "${GIT_AUTHOR_DATE:-}" ]
+    then
+        findComposer
+        echo "${cmdPrefix#  }" "$($composerCmd config bin-dir)"/check-commit-cube.sh
+        echo
+    fi
 }
 
 xArgs0cmd='xargs -0 -r'
@@ -186,12 +195,15 @@ runCheckTwig() {
 }
 
 runCheckYaml() {
-    $gitListFiles -- '*.yml' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
+    $gitListFiles -- '*.yml' '*.yaml' '*.neon' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
 }
 
-runCheckComposer() {
-    if ! $gitListFiles --quiet -- 'composer.*'
-    then
+findComposer() {
+        local checkDir
+        if [ -n "${composerCmd:-}" ]
+        then
+            return # already found
+        fi
         findPhpBinary
         composerCmd=''
         for checkDir in . .. ../..
@@ -213,7 +225,14 @@ runCheckComposer() {
             composerCmd=$(type -p composer)
             composerCmd="${phpBinary:-php} ${composerCmd:-composer}"
         fi
+
+}
+
+runCheckComposer() {
+    if ! $gitListFiles --quiet -- 'composer.*'
+    then
         showCommand composer validate
+        findComposer
         $composerCmd validate || {
             echo
             echo 'to resolve a merge conflict, run "composer update --lock", updating the dependencies is not desired' | grep --color -e --lock
