@@ -24,7 +24,7 @@ WARNING: reports too many failures
 EoMsg
             )
             ->addArgument('files', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'files to check')
-            ->addOption('errorFilesLimit', 'e', InputOption::VALUE_REQUIRED, 'stop after this many error files', 0);
+            ->addOption('errorFilesLimit', 'l', InputOption::VALUE_REQUIRED, 'stop after this many error files', 0);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

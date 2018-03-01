@@ -40,12 +40,12 @@ check-branch: ## checks all files changed since origin/development
 
 # validate targets
 
-validate-stan: ## runs phpstan (missing variables, wrong case, ...)
 ifeq (,$(wildcard(.phpstan.neon)))
-stanConfig=
+stanConfig = ''
 else
-stanConfig= -c .phpstan.neon
+stanConfig = -c .phpstan.neon
 endif
+validate-stan: ## runs phpstan (missing variables, wrong case, ...)
 	./vendor/bin/phpstan analyse $(stanConfig) src/
 .PHONY: validate-stan
 
