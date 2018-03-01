@@ -21,10 +21,20 @@ class SymfonyLoadableTest extends TestCase
      */
     private static $php;
 
+    /**
+     * @var string symfony console path
+     */
+    private static $console;
+
     public static function setUpBeforeClass()
     {
         $executableFinder = new PhpExecutableFinder();
         self::$php = $executableFinder->find();
+        $console = 'bin/console';
+        if (!file_exists($console) && file_exists('app/console')) {
+            $console = 'app/console';
+        }
+        self::$console = $console;
     }
 
     /**
@@ -49,16 +59,41 @@ class SymfonyLoadableTest extends TestCase
 
     public function testConsoleRunnable()
     {
-        $console = 'bin/console';
-        if (!file_exists($console)) {
-            $console = 'app/console';
-        }
-        $p = new Process(self::$php.' '.$console.' -V', null, null, 5);
-        $p->mustRun();
+        $p = $this->runConsoleCommand('-V');
         $this->assertEquals('', $p->getErrorOutput(), 'no error output');
         $this->assertContains('ymfony ', $p->getOutput(), 'some output');
-        if ('bin/' === substr($console, 0, 4)) {
+        if ('bin/' === substr(self::$console, 0, 4)) {
             $this->assertTrue(is_dir('var'), 'var/ exists if console in bin/');
         }
+    }
+
+    /**
+     * @depends testConsoleRunnable
+     */
+    public function testConsoleCommandsValid()
+    {
+        try {
+            $this->runConsoleCommand('list --format=md');
+        } catch (\Symfony\Component\Process\Exception\ProcessFailedException $e) {
+            $fullMsg = $e->getMessage();
+            $pos = strpos($fullMsg, "\n");
+            $msg = substr($fullMsg, 0, $pos);
+            // could find the failing command by analyzing remaining lines
+            $expl = 'run the command manually and look which commands are listed only in the overview => next one is failing';
+            /*
+             * grep -B 1 -e '-----' # shows successful commands
+             * grep -e '* [' # shows all commands
+             */
+            $this->assertFalse(true, $msg."\n\n  ".$expl);
+        }
+        $this->assertTrue(true);
+    }
+
+    protected function runConsoleCommand($arg)
+    {
+        $p = new Process(self::$php.' '.self::$console.' '.$arg, null, null, 5);
+        $p->mustRun();
+
+        return $p;
     }
 }
