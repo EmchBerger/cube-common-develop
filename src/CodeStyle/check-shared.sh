@@ -19,13 +19,13 @@ showWarning() {
     echo -n '  continue anyway with c, abort with a: '
     while true
     do
-        read -r -n 1 AW < /dev/tty
+        read -r -n 1 AW < /dev/tty || AW=ttyError
         case $AW in
         c)
             echo
             return
         ;;
-        a|q)
+        a|q|ttyError)
             echo '  Abort'
             exit 2
         ;;
