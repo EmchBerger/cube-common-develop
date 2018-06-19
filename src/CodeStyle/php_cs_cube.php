@@ -33,9 +33,6 @@ return PhpCsFixer\Config::create('Cubetools Standard')
             'align_double_arrow' => null,
             'align_equals' => null,
         ),
-        'array_syntax' => array(
-            'syntax' => 'long',
-        ),
         'no_unused_imports' => true, // to have this set in _reduced also
     ))
     ->setFinder($finder)

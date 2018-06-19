@@ -38,7 +38,6 @@
 
     <!-- Symfony2.WhiteSpace.AssignmentSpacing.Invalid  Symfony2.WhiteSpace.BinaryOperatorSpacing.Invalid?? -->
 
-    <rule ref="Generic.Arrays.DisallowShortArraySyntax"/>
     <rule ref="Squiz.Operators.ValidLogicalOperators"/>
 
     <!-- null values before end are not a default value (to allow null when type specified) -->
