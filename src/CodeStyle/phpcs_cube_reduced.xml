@@ -3,7 +3,6 @@
     <description>Coding style (reduced) for CUBE Tools, based on PSR-2.</description>
     <rule ref="PSR2"/>
 
-    <rule ref="Generic.Arrays.DisallowShortArraySyntax"/>
     <rule ref="Squiz.Operators.ValidLogicalOperators"/>
 
     <!-- null values before end are not a default value (to allow null when type specified) -->
