@@ -78,21 +78,21 @@ class SmoketestPageLoadingBase extends WebTestBase
         } elseif (self::EXCEPTION_CODE === $code) {
             // skip, is handled later
         } elseif ($client->getResponse()->isRedirect()) {
-                    $redirect = $client->getResponse()->getTargetUrl();
-                    if (isset($info->redirect)) {
-                        $this->checkRedirectTarget($client, $info, $redirect);
-                        $aw['code'] = Response::HTTP_OK; // set to pass
-                    } else {
-                        $aw['msg'] = static::msgUnexpectedRedirect($client);
-                    }
-                    if ('POST' !== $method && 'DELETE' !== $method) {
-                        // simply fail
-                    } elseif (false !== strpos($path, $redirect)) {
-                        // redirect to a parent URL after POST/DELETE
-                        $this->markTestSkipped("maybe {$aw['msg']}");
-                    } else {
-                        $this->markTestIncomplete($aw['msg']);
-                    }
+            $redirect = $client->getResponse()->getTargetUrl();
+            if (isset($info->redirect)) {
+                $this->checkRedirectTarget($client, $info, $redirect);
+                $aw['code'] = Response::HTTP_OK; // set to pass
+            } else {
+                $aw['msg'] = static::msgUnexpectedRedirect($client);
+            }
+            if ('POST' !== $method && 'DELETE' !== $method) {
+                // simply fail
+            } elseif (false !== strpos($path, $redirect)) {
+                // redirect to a parent URL after POST/DELETE
+                $this->markTestSkipped("maybe {$aw['msg']}");
+            } else {
+                $this->markTestIncomplete($aw['msg']);
+            }
         }
     }
 
