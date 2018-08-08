@@ -208,6 +208,16 @@ TO_HERE
     showWarning
 fi
 
+invPatts="\.format\(.[DMY]"
+if findUnwantedTerms '*.twig' "$invPatts"
+then
+    cat <<'TO_HERE'
+  * do not use dateVar.format(...), use dateVar|showDate (in pa) or dateVar|date(...)
+       .format(...) crashes on null, |showDate shows empty, |date(...) shows now
+TO_HERE
+    showWarning
+fi
+
 # check files to commit for local changes
 if [ -n "$cachedDiff" ] && ! $gitListFiles | $xArgs0 git diff-files --name-only --exit-code --
 then
