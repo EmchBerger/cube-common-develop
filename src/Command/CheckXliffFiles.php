@@ -11,10 +11,12 @@ use CubeTools\CubeCommonDevelop\CodeStyle\XliffFiles;
 
 class CheckXliffFiles extends Command
 {
+    protected static $defaultName = 'lint:xliff:cubestyle';
+
     protected function configure()
     {
         $this
-            ->setName('lint:xliff:cubestyle')
+            // self::$defaultName instead of ->setName()
             ->setDescription('checks some styles in xliff files')
             ->setHelp(<<<EoMsg
 checks some styles in xliff files
