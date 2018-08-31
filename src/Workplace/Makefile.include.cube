@@ -1,6 +1,6 @@
-update-makefile-from-cube-common-bundle: fromFile = $(dir $(lastword $(MAKEFILE_LIST)))../../Makefile
-update-makefile-from-cube-common-bundle: toFile = ./Makefile
-update-makefile-from-cube-common-bundle:
+update-makefile-from-cube-common-develop: fromFile = $(dir $(lastword $(MAKEFILE_LIST)))../../Makefile
+update-makefile-from-cube-common-develop: toFile = ./Makefile
+update-makefile-from-cube-common-develop:
 	@[ -f '$(toFile)' ] || { echo no '$(toFile)'; false; }
 	@[ "$$(readlink -f '$(fromFile)')" != "$$(readlink -f '$(toFile)' )" ] || { echo same dest and source; false; }
 	@awk '1==FNR,/###> cubetools\/cube-common-develop ###/ { if (S) print L; L=$$0; S=1; }' '$(toFile)' > '$(toFile).tmp~'
