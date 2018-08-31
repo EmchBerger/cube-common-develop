@@ -9,14 +9,17 @@ thisDir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 # handle args
 fileList=$(echo "$@" | xargs -r -n 1 --)
 
+if [ -z $fileList ]
+then
+    echo error: no file given as argument >&2
+    exit 1
+fi
+
 listArgFiles() {
     local arg hasPatt hasQuiet
     local -a grepArgs
     hasPatt=''
     hasQuiet=''
-    if [ 0 -eq $# ]
-        then return 1
-    fi
     for arg
     do
         case "$arg" in
@@ -38,7 +41,7 @@ listArgFiles() {
     done
     if [ -z $hasPatt ]
     then
-        grepArgs+=(-e '')
+        grepArgs+=(-e '.*') # match all
     fi
     if [ "1" = "$hasQuiet" ]
     then
@@ -48,12 +51,14 @@ listArgFiles() {
     fi
 }
 
-gitListFiles="listArgFiles" # shellcheck ignore=SC2034
+gitListFiles="listArgFiles"
+true "$gitListFiles" # used in check-shared.sh
 
 # Redirect output to stderr.
 exec 1>&2
 
-whenNoMerge='' # shellcheck ignore=SC2034
+whenNoMerge=''
+true "$whenNoMerge" # used in check-shared.sh
 
 # shellcheck source=./src/CodeStyle/check-shared.sh
 source "$thisDir/check-shared.sh"
