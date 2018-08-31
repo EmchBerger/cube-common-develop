@@ -25,6 +25,8 @@ else
     source "$sharedDir/check-shared.sh" # to trigger error
 fi
 
+preInitialCommit=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+
 # handle args
 cachedDiff=--cached
 against=
@@ -57,7 +59,7 @@ then
     against=HEAD
 else
     # Initial commit: diff against an empty tree object
-    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    against="$preInitialCommit"
 fi
 if [ HEAD = $against ]
 then
@@ -144,6 +146,22 @@ then
         echo 'above files with EXEC bit set now, is this expected?'
         echo 'if not, run $ chmod a-x $''(git diff --cached --name-only)'
         showWarning
+fi
+
+checkNumstatForBinaryFile() {
+    # set --cached or 2nd commit, both does not work
+    if [ -z "$cachedDiff" ]
+    then
+        xargs -r -d '\n' -- git diff --numstat "$preInitialCommit" "$against" --
+    else
+        xargs -r -d '\n' -- git diff --numstat "$cachedDiff" "$preInitialCommit" --
+    fi
+}
+# check for files with binary data
+if git diff $cachedDiff "$against" --numstat | grep '^-' | cut -f 3- | checkNumstatForBinaryFile | grep '^-'
+then
+    echo 'above files are binary, is this expected?'
+    showWarning
 fi
 
 # warn on unwanted terms

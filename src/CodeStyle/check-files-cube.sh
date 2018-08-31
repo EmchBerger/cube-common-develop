@@ -63,6 +63,12 @@ true "$whenNoMerge" # used in check-shared.sh
 # shellcheck source=./src/CodeStyle/check-shared.sh
 source "$thisDir/check-shared.sh"
 
+if listArgFiles | runXArgs0 -- file -- | grep ': *data$'
+then
+    echo 'above files are binary, is this expected?'
+    showWarning
+fi
+
 runSharedChecks
 
 setReturnValue
