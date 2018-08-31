@@ -26,6 +26,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     public function testSimplePageLoading($method, $path, $info)
     {
         $aw = $this->loadPage($method, $path, $info);
+        $this->checkRedirectAw($aw, $method, $info);
         $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
@@ -56,38 +57,43 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
 
         switch ($code) {
-            case Response::HTTP_OK:
-                if (isset($info->redirect)) {
-                    $this->assertTrue(false, 'expected redirect to '.$info->redirect);
-                }
-                break;
             case Response::HTTP_NOT_FOUND:
             case Response::HTTP_INTERNAL_SERVER_ERROR:
                 $msg .= ': '.$this->getPageLoadingFailure($crawler, $this->getName());
                 break;
-            case self::EXCEPTION_CODE:
-                break;
-            default:
-                if ($client->getResponse()->isRedirect()) {
-                    $redirect = $client->getResponse()->getTargetUrl();
-                    if (isset($info->redirect)) {
-                        $this->checkRedirectTarget($client, $info, $redirect);
-                        $code = Response::HTTP_OK; // set to pass
-                    } else {
-                        $msg = static::msgUnexpectedRedirect($client);
-                    }
-                    if ('POST' !== $method && 'DELETE' !== $method) {
-                        // simply fail
-                    } elseif (false !== strpos($path, $redirect)) {
-                        // redirect to a parent URL after POST/DELETE
-                        $this->markTestSkipped("maybe $msg");
-                    } else {
-                        $this->markTestIncomplete($msg);
-                    }
-                }
         }
 
         return array('code' => $code, 'msg' => $msg, 'exception' => $ex);
+    }
+
+    protected function checkRedirectAw(array &$aw, $method, $info)
+    {
+        $code = $aw['code'];
+        $client = $this->getClient(false);
+
+        if (Response::HTTP_OK === $code) {
+            if (isset($info->redirect)) {
+                $this->AssertTrue(false, 'expected redirect to '.$info->redirect);
+            }
+        } elseif (self::EXCEPTION_CODE === $code) {
+            // skip, is handled later
+        } elseif ($client->getResponse()->isRedirect()) {
+            $redirect = $client->getResponse()->getTargetUrl();
+            if (isset($info->redirect)) {
+                $this->checkRedirectTarget($client, $info, $redirect);
+                $aw['code'] = Response::HTTP_OK; // set to pass
+            } else {
+                $aw['msg'] = static::msgUnexpectedRedirect($client);
+            }
+            if ('POST' !== $method && 'DELETE' !== $method) {
+                // simply fail
+            } elseif (false !== strpos($path, $redirect)) {
+                // redirect to a parent URL after POST/DELETE
+                $this->markTestSkipped("maybe {$aw['msg']}");
+            } else {
+                $this->markTestIncomplete($aw['msg']);
+            }
+        }
     }
 
     /**
@@ -100,6 +106,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
+        $this->checkRedirectAw($aw, $method, $info);
         $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         if ($aw['code'] == Response::HTTP_NOT_FOUND && (strpos($aw['msg'], 'entity') || strpos($aw['msg'], ' not found')) ||
