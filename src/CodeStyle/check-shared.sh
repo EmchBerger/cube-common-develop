@@ -45,7 +45,7 @@ warnWhenMissing () {
     return $lastRet
 }
 
-cmdPrefix="   $(tput setaf 6)# running:$(tput setaf 15)" || true
+cmdPrefix="   $(tput setaf 6)# running:$(tput setaf 7)" || true
 showCommandXArg() {
     local append=$1
     shift
