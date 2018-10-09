@@ -143,7 +143,7 @@ findSyConsole () {
         elif [ -f app/console ]
             then syConsole=app/console
         else
-            syConsoleError="console not available to run $syConsole"
+            syConsoleError="console not available"
         fi
     fi
 
@@ -153,32 +153,30 @@ findSyConsole () {
 }
 
 syConsoleRun() {
-    if ! findSyConsole
-    then
-        echo "$syConsoleError" "$@"
-        return 127 # not found error
+    local lastRet
+    if findSyConsole
+    then true
+    else
+        lastRet=$?
+        showCommand "$syConsole" "$@"
+        echo "$syConsoleError"
+        return $lastRet
     fi
     findPhpBinary
     showCommand "$syConsole" "$@"
     $phpBinary "$syConsole" "$@"
 }
 syConsoleXargs () {
-    local oneChar
     findPhpBinary
-    if ! findSyConsole  && read -r -N 1 oneChar
-    then # no console but input, trigger error
-        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@"
-        return 127
-    fi
+    findSyConsole
     $xArgs0 -- $phpBinary "$syConsole" "$@"
 }
 syConsoleXargsN1 () {
-    local oneChar
     findPhpBinary
-    if ! findSyConsole && read -r -N 1 oneChar
-    then # no console but input, trigger error listing files in one command
-        { printf "%s" "$oneChar"; cat; } | $xArgs0 -- echo "$syConsoleError" "$@" for
-        return 127
+    if ! findSyConsole
+    then # no console, trigger error listing files in one command
+        head -n 1 | $xArgs0n1 -- $phpBinary "$syConsole" "$@"
+        return $?
     fi
     $xArgs0n1 -- $phpBinary "$syConsole" "$@"
 }

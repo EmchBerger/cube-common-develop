@@ -92,7 +92,6 @@ class CheckFilesTest extends \PHPUnit\Framework\TestCase
         ));
         /* only works when:
          *   - entity file is existing (because php -l aborts the script)
-         *   - and bin/console works (because test not run else)
          'some/Entity/mine.php' as 'entity' matching '@\bbin/console doctrine:schema:validate\b@'
          */
     }
