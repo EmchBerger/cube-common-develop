@@ -25,6 +25,15 @@ else
     source "$sharedDir/check-shared.sh" # to trigger error
 fi
 
+checkAuthor() {
+    if echo "$GIT_AUTHOR_EMAIL" | grep "$(hostname -f)" || echo "$GIT_AUTHOR_EMAIL" | grep "$(hostname)"
+    then
+        echo "really commit with email '$GIT_AUTHOR_EMAIL'?"
+        showWarning
+    fi
+}
+checkAuthor
+
 preInitialCommit=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 
 # handle args
