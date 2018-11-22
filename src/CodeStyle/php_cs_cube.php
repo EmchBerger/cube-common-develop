@@ -25,7 +25,7 @@ if (is_dir('tests')) {
     $finder->in('tests');
 }
 
-return PhpCsFixer\Config::create('Cubetools Standard')
+return (new PhpCsFixer\Config('Cubetools Standard'))
     ->setRules(array(
         '@Symfony' => true,
         //'concat_without_spaces' => false,
