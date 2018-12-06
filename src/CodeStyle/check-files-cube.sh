@@ -9,7 +9,7 @@ thisDir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
 # handle args
 fileList=$(echo "$@" | xargs -r -n 1 --)
 
-if [ -z $fileList ]
+if [ -z "$fileList" ]
 then
     echo error: no file given as argument >&2
     exit 1
