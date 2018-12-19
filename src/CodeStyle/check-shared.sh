@@ -261,6 +261,17 @@ runCheckPhpstan() {
     $whenNoMerge $gitListFiles -- '*.php' | checkPhpStan || showWarning
 }
 
+runCheckPhpControllers() {
+    if $whenNoMerge $gitListFiles --quiet -- '*Controller.php'
+    then
+        true # no controller
+    elif $gitListFiles -- '*Controller.php' | $xArgs0 grep --with-filename --color=always ' public function' | grep -v 'Action(\| __construct(' | grep .
+    then
+        echo 'public functions in controllers should be routes only, named xxxAction(), above have wrong name'
+        showWarning
+    fi
+}
+
 runCheckShellscript() {
     $gitListFiles -- '*.sh' | $xArgs0n1 -- bash -n # syntax
     $whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
@@ -275,6 +286,7 @@ runSharedChecks() {
     runCheckComposer
     runCheckPhpcs
     runCheckPhpstan
+    runCheckPhpControllers
     runCheckShellscript
 }
 
