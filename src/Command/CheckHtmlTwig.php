@@ -12,10 +12,12 @@ use CubeTools\CubeCommonDevelop\CodeStyle\HtmlTwig;
 
 class CheckHtmlTwig extends Command
 {
+    protected static $defaultName = 'lint:html.twig';
+
     protected function configure()
     {
         $this
-            ->setName('lint:html.twig')
+            // self::$defaultName instead of ->setName()
             ->setDescription('checks html code in twig files (see WARNING)')
             ->setHelp(<<<EoMsg
 checks html code in twig files

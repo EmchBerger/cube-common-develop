@@ -25,6 +25,17 @@ else
     source "$sharedDir/check-shared.sh" # to trigger error
 fi
 
+checkAuthor() {
+    if echo "$GIT_AUTHOR_EMAIL" | grep "$(hostname -f)" || echo "$GIT_AUTHOR_EMAIL" | grep "$(hostname)"
+    then
+        echo "really commit with email '$GIT_AUTHOR_EMAIL'?"
+        showWarning
+    fi
+}
+checkAuthor
+
+preInitialCommit=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+
 # handle args
 cachedDiff=--cached
 against=
@@ -57,7 +68,7 @@ then
     against=HEAD
 else
     # Initial commit: diff against an empty tree object
-    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    against="$preInitialCommit"
 fi
 if [ HEAD = $against ]
 then
@@ -146,6 +157,22 @@ then
         showWarning
 fi
 
+checkNumstatForBinaryFile() {
+    # set --cached or 2nd commit, both does not work
+    if [ -z "$cachedDiff" ]
+    then
+        xargs -r -d '\n' -- git diff --numstat "$preInitialCommit" "$against" --
+    else
+        xargs -r -d '\n' -- git diff --numstat "$cachedDiff" "$preInitialCommit" --
+    fi
+}
+# check for files with binary data
+if git diff $cachedDiff "$against" --numstat | grep '^-' | cut -f 3- | checkNumstatForBinaryFile | grep '^-'
+then
+    echo 'above files are binary, is this expected?'
+    showWarning
+fi
+
 # warn on unwanted terms
 
 findUnwantedTerms () {
@@ -208,6 +235,16 @@ TO_HERE
     showWarning
 fi
 
+invPatts="\.format\(.[DMY]"
+if findUnwantedTerms '*.twig' "$invPatts"
+then
+    cat <<'TO_HERE'
+  * do not use dateVar.format(...), use dateVar|showDate (in pa) or dateVar|date(...)
+       .format(...) crashes on null, |showDate shows empty, |date(...) shows now
+TO_HERE
+    showWarning
+fi
+
 # check files to commit for local changes
 if [ -n "$cachedDiff" ] && ! $gitListFiles | $xArgs0 git diff-files --name-only --exit-code --
 then
@@ -219,7 +256,7 @@ fi
 
 runSharedChecks
 
-if [ -z "$(git ls-files composer.lock)" ] && [ $(( $(date +%s)-$(date -r composer.lock +%s) )) -gt 864000 ]
+if [ -f composer.lock ] && [ -z "$(git ls-files composer.lock)" ] && [ $(( $(date +%s)-$(date -r composer.lock +%s) )) -gt 864000 ]
 then
     printf '\n  untracked composer.lock is older than 10 days, run composer update\n\n' | grep --color -e '' -e 'composer .*'
 fi
