@@ -1,0 +1,19 @@
+# run by check-commit-cube (when it is not called by pre-commit)
+
+exclude: '/vendors/|/node_modules/|^/var/'
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  # general checks
+  rev: v2.0.0
+  hooks:
+    - id: trailing-whitespace
+    - id: end-of-file-fixer
+    - id: check-yaml # not done by check-commit-cube, bin/console is missing
+    - id: check-json
+    - id: check-xml
+    - id: check-added-large-files
+    - id: forbid-new-submodules
+    - id: check-symlinks
+    - id: check-executables-have-shebangs
+    - id: check-merge-conflict
+    - id: mixed-line-ending
