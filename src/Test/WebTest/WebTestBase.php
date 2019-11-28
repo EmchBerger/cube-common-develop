@@ -52,17 +52,30 @@ class WebTestBase extends WebTestCase
             self::$client = false;
             $client = static::createClient();
             $container = $client->getContainer();
-            try {
-                $client->setServerParameters(array(
-                    'PHP_AUTH_USER' => $container->getParameter('test_user'),
-                    'PHP_AUTH_PW'   => $container->getParameter('test_pwd'),
-                    'HTTP_HOST'     => $container->getParameter('router.request_context.host'),
-                ));
-            } catch (InvalidArgumentException $e) {
-                $explain = ' (run "composer update-test-parameters")';
-                throw new InvalidArgumentException($e->getMessage().$explain, $e->getCode(), $e);
+            if (!$container->hasParameter('test_user') && getenv('TEST_USER') && getenv('TEST_PWD')) {
+                // configured by environment variables
+                $serverParameter = [
+                    'PHP_AUTH_USER' => getenv('TEST_USER'),
+                    'PHP_AUTH_PW'   => getenv('TEST_PWD'),
+                ];
+            } else { // try reading from parameters
+                try {
+                    $serverParameter = [
+                        'PHP_AUTH_USER' => $container->getParameter('test_user'),
+                        'PHP_AUTH_PW'   => $container->getParameter('test_pwd'),
+                    ];
+                } catch (InvalidArgumentException $e) {
+                    if (getenv('APP_ENV')) { // running with symfony/flex
+                        $explain = ' (set parameters in service_test.yml or '.
+                            'set variables TEST_USER and TEST_PWD in .env.test)';
+                    } else {
+                        $explain = ' (run "composer update-test-parameters")';
+                    }
+                    throw new InvalidArgumentException($e->getMessage().$explain, $e->getCode(), $e);
+                }
             }
-
+            $serverParameter['HTTP_HOST'] = $container->getParameter('router.request_context.host');
+            $client->setServerParameters($serverParameter);
             self::$client = $client;
         } elseif ($newClient) {
             self::$client->restart();
@@ -289,7 +302,9 @@ class WebTestBase extends WebTestCase
         $client->request(self::$connectionCheckUrl['method'], self::$connectionCheckUrl['url']);
         $r = $client->getResponse();
         if ($r->isRedirect()) { // hostname is in redirect, so "/login" does not work
-            throw new \Exception('Abort WebTest*: login failed, check password and username in parameters_test.yml', 0, $oldEx);
+            $msg = 'Abort WebTest*: login failed, check password and username in .env.test(.local) '.
+                'or parameters_test.yml';
+            throw new \Exception($msg, 0, $oldEx);
         }
         if ($r->getStatusCode() != 200) {
             $msg = self::getPageLoadingFailure($client->getCrawler(), 'loginError');
