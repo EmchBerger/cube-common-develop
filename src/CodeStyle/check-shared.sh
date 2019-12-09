@@ -277,6 +277,30 @@ runCheckShellscript() {
     $whenNoMerge $gitListFiles -- '*.sh' | $xArgs0 -- shellcheck || showWarning # style
 }
 
+runPreCommitComChecks() {
+    local cfgFile
+    cfgFile=.pre-commit-config-postcube.yaml
+    # note to SC2009: using pgrep does not work here
+    #   shellcheck disable=SC2009
+    if [ -f "$cfgFile" ] && ps -p "$PPID" -o args= | grep -q -e '\bgit\b' -e '^/bin/bash$' -e '^bash$'
+    then
+        # has hook file and is directly run by git hook (not pre-commit, not in docker) or interactive shell
+        if hash pre-commit 2>/dev/null
+        then # pre-commit exists
+            if pre-commit run --config "$cfgFile"
+            then
+                true passed
+            else
+                echo '    hint: to skip a pre-commit.com test temporarely, run "SKIP=failingTestHookId git commit ..."'
+                showWarning
+            fi
+        else
+            echo '    "pre-commit" is not installed, install it by running "pip install pre-commit"'
+            pre-commit run --config "cfgFile" || showWarning
+        fi
+    fi
+}
+
 runSharedChecks() {
     runValidPhp
     runCheckTranslation
@@ -288,6 +312,7 @@ runSharedChecks() {
     runCheckPhpstan
     runCheckPhpControllers
     runCheckShellscript
+    runPreCommitComChecks
 }
 
 setReturnValue() {
