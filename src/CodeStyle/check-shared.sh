@@ -287,8 +287,15 @@ runPreCommitComChecks() {
         # has hook file and is directly run by git hook (not pre-commit, not in docker) or interactive shell
         if hash pre-commit 2>/dev/null
         then # pre-commit exists
-            pre-commit run --config "$cfgFile"
+            if pre-commit run --config "$cfgFile"
+            then
+                true passed
+            else
+                echo '    hint: to skip a pre-commit.com test temporarely, run "SKIP=failingTestHookId git commit ..."'
+                showWarning
+            fi
         else
+            echo '    "pre-commit" is not installed, install it by running "pip install pre-commit"'
             pre-commit run --config "cfgFile" || showWarning
         fi
     fi
