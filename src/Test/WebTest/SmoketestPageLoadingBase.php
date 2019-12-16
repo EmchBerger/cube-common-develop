@@ -213,7 +213,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     }
 
     /**
-     * Returns true when we are interested in this route (when route from AppBundle).
+     * Returns true when we are interested in this route (when route from AppBundle or App).
      *
      * Can be overwritten in a subclass to adapt to what is interesting in a project.
      *
@@ -226,7 +226,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         $controllerName = $route->getDefault('_controller');
         $topName = strtok($controllerName, ':\\.');
 
-        return 'AppBundle' === $topName;
+        return 'AppBundle' === $topName || 'App' === $topName;
     }
 
     /**
