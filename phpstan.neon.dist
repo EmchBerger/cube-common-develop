@@ -9,4 +9,6 @@ parameters:
       - tests/
     ignoreErrors:
         # types likely not loaded in library
-        - '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'
+        - message: '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'
+          path: src/ComposerCommands.php
+          count: 1
