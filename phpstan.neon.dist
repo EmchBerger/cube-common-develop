@@ -15,3 +15,6 @@ parameters:
         - message: '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'
           path: src/ComposerCommands.php
           count: 1
+
+includes:
+    - .phpstan_baseline.neon # created with: make make-phpstan-baseline

@@ -1,0 +1,187 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\$context of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\Resources\\\\MatchingRoutesTest\\:\\:checkRoute\\(\\) has invalid typehint type Symfony\\\\Component\\\\Routing\\\\RequestContext\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Parameter \\$route of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\Resources\\\\MatchingRoutesTest\\:\\:checkRoute\\(\\) has invalid typehint type Symfony\\\\Component\\\\Routing\\\\Route\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Component\\\\Routing\\\\Matcher\\\\TraceableUrlMatcher not found\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Access to constant ROUTE_MATCHES on an unknown class Symfony\\\\Component\\\\Routing\\\\Matcher\\\\TraceableUrlMatcher\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Access to constant ROUTE_ALMOST_MATCHES on an unknown class Symfony\\\\Component\\\\Routing\\\\Matcher\\\\TraceableUrlMatcher\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Parameter \\$route of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\Resources\\\\MatchingRoutesTest\\:\\:getCheckPath\\(\\) has invalid typehint type Symfony\\\\Component\\\\Routing\\\\Route\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Parameter \\$context of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\Resources\\\\MatchingRoutesTest\\:\\:createFailure\\(\\) has invalid typehint type Symfony\\\\Component\\\\Routing\\\\RequestContext\\.$#"
+			count: 1
+			path: src/Test/Resources/MatchingRoutesTest.php
+
+		-
+			message: "#^Access to constant HTTP_OK on an unknown class Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			count: 9
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Access to constant HTTP_NOT_FOUND on an unknown class Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			count: 2
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Access to constant HTTP_INTERNAL_SERVER_ERROR on an unknown class Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			count: 2
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Access to constant HTTP_FOUND on an unknown class Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			count: 1
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Access to constant HTTP_UNAUTHORIZED on an unknown class Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			count: 1
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Parameter \\$route of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\SmoketestPageLoadingBase\\:\\:interestedInRoute\\(\\) has invalid typehint type Symfony\\\\Component\\\\Routing\\\\Route\\.$#"
+			count: 1
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Class PHPUnit\\\\Util\\\\Test not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Access to constant LARGE on an unknown class PHPUnit\\\\Util\\\\Test\\.$#"
+			count: 1
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Access to constant LARGE on an unknown class PHPUnit_Util_Test\\.$#"
+			count: 1
+			path: src/Test/WebTest/SmoketestPageLoadingBase.php
+
+		-
+			message: "#^Caught class Symfony\\\\Component\\\\DependencyInjection\\\\Exception\\\\InvalidArgumentException not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Component\\\\DependencyInjection\\\\Exception\\\\InvalidArgumentException not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestBase\\:\\:msgUnexpectedRedirect\\(\\) has invalid typehint type Symfony\\\\Bundle\\\\FrameworkBundle\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_SkippedTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\SkippedTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_IncompleteTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\IncompleteTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_RiskyTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\RiskyTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestBase\\:\\:checkFailureProblem\\(\\) has invalid typehint type Symfony\\\\Bundle\\\\FrameworkBundle\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Bundle\\\\FrameworkBundle\\\\Console\\\\Application not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Instantiated class Doctrine\\\\Bundle\\\\DoctrineBundle\\\\Command\\\\Proxy\\\\ValidateSchemaCommand not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestBase\\:\\:checkClientConnection\\(\\) has invalid typehint type Symfony\\\\Bundle\\\\FrameworkBundle\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:requestSuccessful\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:submitSuccessful\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:submitSuccessfulDebugForm\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:clickSuccessful\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:checkResponse\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:basicPageCheck\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Parameter \\$client of method CubeTools\\\\CubeCommonDevelop\\\\Test\\\\WebTest\\\\WebTestCube\\:\\:getThisUser\\(\\) has invalid typehint type Symfony\\\\Component\\\\BrowserKit\\\\Client\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestCube.php
+
+		-
+			message: "#^Class Symfony\\\\Bundle\\\\FrameworkBundle\\\\Client not found\\.$#"
+			count: 1
+			path: tests/Test/WebTest/WebTestBaseTest.php
+
