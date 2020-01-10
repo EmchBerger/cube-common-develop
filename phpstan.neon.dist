@@ -7,6 +7,9 @@ parameters:
     paths:
       - src/
       - tests/
+    autoload_files:
+      - src/CodeStyle/PhpStanDummy/LoadFallbackClasses.php
+
     ignoreErrors:
         # types likely not loaded in library
         - message: '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'

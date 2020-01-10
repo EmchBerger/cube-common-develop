@@ -1,3 +1,9 @@
 <?php
 
-return require __DIR__.'/src/CodeStyle/php_cs_cube.php';
+// config for vendor/bin/php-cs-fixer fix ...
+
+$config = require __DIR__.'/src/CodeStyle/php_cs_cube.php';
+
+$config->setFinder($config->getFinder()->exclude('PhpStanDummy/Classes'));
+
+return $config;
