@@ -14,12 +14,12 @@
         "php": ">=5.4.0",
         "escapestudios/symfony2-coding-standard": "^2.9",
         "friendsofphp/php-cs-fixer": "^2.0",
-        "symfony/browser-kit": "^3.1|^4.1|5.0",
-        "symfony/css-selector": "^3.1|^4.1|5.0"
+        "symfony/browser-kit": "^3.1|^4.1|^5.0",
+        "symfony/css-selector": "^3.1|^4.1|^5.0"
     },
     "require-dev": {
         "incenteev/composer-parameter-handler": "^2.1",
-        "phpstan/phpstan": "^0.9.1"
+        "phpstan/phpstan": "^0.12.3"
     },
     "suggest": {
         "incenteev/composer-parameter-handler": "to run composer command",

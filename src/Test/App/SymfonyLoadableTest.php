@@ -11,8 +11,10 @@ use PHPUnit\Framework\TestCase;
  *
  * Extend this class in a test of the project, or create a test file containing "new SymfonyLoadableTest();"
  *
- * Tests if web/app.php, web/app_dev.php and xxx/console are runnable.
- * Usable when modifying autoloading or console location, or ...
+ * Tests if front controller (public/index.php or web/app.php, web/app_dev.php) and xxx/console are runnable,
+ * and if all console commands are at least loadable.
+ *
+ * Usable when modifying autoloading or console location, when modifying commands or ...
  */
 class SymfonyLoadableTest extends TestCase
 {
@@ -50,10 +52,13 @@ class SymfonyLoadableTest extends TestCase
 
     public static function getAppNames()
     {
-        yield 'prod' => array('web/app.php');
-
-        foreach (glob('web/app_*.php') as $appPath) {
-            yield basename($appPath) => array($appPath);
+        if (file_exists('public/index.php')) {
+            yield 'index' => array('public/index.php');
+        } else {
+            yield 'prod' => array('web/app.php');
+            foreach (glob('web/app_*.php') as $appPath) {
+                yield basename($appPath) => array($appPath);
+            }
         }
     }
 
