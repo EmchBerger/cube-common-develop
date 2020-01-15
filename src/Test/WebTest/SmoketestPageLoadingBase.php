@@ -395,7 +395,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Checks if error (msg and code in $aw) match any of the given variants.
      *
-     * @param mixed[] $aw    as returned by loadPage(): ['code'=> int (error code), 'msg' => string (error message), ...
+     * @param mixed[] $aw    answer from loadPage()
      * @param mixed[] $anyOf ['msg' => string, 'code' => int, ...], msg or code must be present)
      *
      * @return null|array matching element of $anyOf (with ['name'] set to key), null else
@@ -475,10 +475,12 @@ class SmoketestPageLoadingBase extends WebTestBase
      *
      * @return int code for into $aw
      */
-    private function passOrAnyOf(array $aw, $info)
+    private function passOrAnyOf(array &$aw, $info)
     {
         $code = $aw['code'];
-        if (Response::HTTP_OK !== $code && isset($info->passOrAnyOf)) {
+        if (Response::HTTP_OK === $code) {
+            // fine
+        } elseif (isset($info->passOrAnyOf)) {
             $matched = $this->matchAnyOf($aw, $info->passOrAnyOf);
             $msg = $aw['msg'];
             if (null === $matched) {
@@ -490,6 +492,8 @@ class SmoketestPageLoadingBase extends WebTestBase
             } else {
                 $this->markTestIncomplete('failure matched ('.$matched['name'].'): '.$msg);
             }
+        } else {
+            $this->matchAnyOf($aw, []); // call to set $aw['msg']
         }
 
         return $code;
