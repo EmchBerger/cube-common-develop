@@ -1,7 +1,4 @@
-includes:
-    - ./vendor/phpstan/phpstan/conf/config.level0.neon
+# old file
 
-parameters:
-    ignoreErrors:
-        # types likely not loaded in library
-        - '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'
+includes:
+ - phpstan.neon.dist

@@ -1,0 +1,12 @@
+# default config for phpstan
+#
+# more infos: vendor/bin/phpstan analyze --help
+
+parameters:
+    level: 0 # higher when all is fixed
+    paths:
+      - src/
+      - tests/
+    ignoreErrors:
+        # types likely not loaded in library
+        - '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'

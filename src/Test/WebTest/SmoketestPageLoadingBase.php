@@ -26,7 +26,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     public function testSimplePageLoading($method, $path, $info)
     {
         $aw = $this->loadPage($method, $path, $info);
-        $this->checkRedirectAw($aw, $method, $info);
+        $this->checkRedirectAw($aw, $method, $path, $info);
         $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
@@ -66,7 +66,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         return array('code' => $code, 'msg' => $msg, 'exception' => $ex);
     }
 
-    protected function checkRedirectAw(array &$aw, $method, $info)
+    protected function checkRedirectAw(array &$aw, $method, $path, $info)
     {
         $code = $aw['code'];
         $client = $this->getClient(false);
@@ -106,7 +106,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
-        $this->checkRedirectAw($aw, $method, $info);
+        $this->checkRedirectAw($aw, $method, $url, $info);
         $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         if ($aw['code'] == Response::HTTP_NOT_FOUND && (strpos($aw['msg'], 'entity') || strpos($aw['msg'], ' not found')) ||
@@ -213,7 +213,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     }
 
     /**
-     * Returns true when we are interested in this route (when route from AppBundle).
+     * Returns true when we are interested in this route (when route from AppBundle or App).
      *
      * Can be overwritten in a subclass to adapt to what is interesting in a project.
      *
@@ -226,7 +226,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         $controllerName = $route->getDefault('_controller');
         $topName = strtok($controllerName, ':\\.');
 
-        return 'AppBundle' === $topName;
+        return 'AppBundle' === $topName || 'App' === $topName;
     }
 
     /**
