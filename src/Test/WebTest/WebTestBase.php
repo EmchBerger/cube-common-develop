@@ -104,7 +104,7 @@ class WebTestBase extends WebTestCase
     /**
      * Get a short explication why loading the page failed.
      *
-     * @param Crawler $crawler
+     * @param \Symfony\Component\DomCrawler\Crawler $crawler
      *
      * @return string explication of failure
      */
