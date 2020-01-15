@@ -74,7 +74,7 @@ class SmoketestPageLoadingBase extends WebTestBase
 
         if (Response::HTTP_OK === $code) {
             if (isset($info->redirect)) {
-                $this->AssertTrue(false, 'expected redirect to '.$info->redirect);
+                $this->assertTrue(false, 'expected redirect to '.$info->redirect);
             }
         } elseif (self::EXCEPTION_CODE === $code) {
             // skip, is handled later
@@ -201,7 +201,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         $routes = self::$kernel->getContainer()->get('router')->getRouteCollection();
         $result = array();
         foreach ($routes as $name => $route) {
-            // only use interesing urls, the rest is too much uninteresing data
+            // only use interesting urls, the rest is too much uninteresting data
             if (static::interestedInRoute($route)) {
                 $infos = array('path' => $route->getPath(),
                     'methods' => $route->getMethods(),
@@ -461,8 +461,8 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Checks if redirect is to expected target.
      *
-     * @param Client $client
-     * @param array  $info
+     * @param Symfony/Component/BrowserKit/Client $client
+     * @param mixed[] $info
      * @param string $redirect url redirected to
      */
     private function checkRedirectTarget($client, $info, $redirect)
@@ -477,7 +477,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Throws a cached exception.
      *
-     * @param many[] $aw with elements [ 'code' => str|int, 'msg' => str|\Exception ]
+     * @param mixed[] $aw with elements [ 'code' => str|int, 'msg' => str|\Exception ]
      *
      * @throws \Exception cached exception
      */
@@ -491,8 +491,8 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Checks the configuration "passorAnyOf".
      *
-     * @param array $aw   answer from loadPage()
-     * @param array $info
+     * @param mixed[] $aw   answer from loadPage()
+     * @param mixed[] $info
      *
      * @return int code for into $aw
      */
