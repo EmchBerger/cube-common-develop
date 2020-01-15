@@ -297,12 +297,27 @@ class SmoketestPageLoadingBase extends WebTestBase
     protected static $urlData = null;
 
     /**
+     * data provider
+     *
      * @param string $testMethodName name of test method the dataprovider is called for
      */
     public static function listUrls($testMethodName)
     {
         if (static::$urlData === null) {
-            static::$urlData = static::loadUrlData();
+            $ex = null;
+            try {
+                static::$urlData = static::loadUrlData();
+            } catch (\Exception $ex) {
+                // handled below
+            } catch (\Throwable $ex) { // php 7+
+               // handled below
+            }
+            if ($ex) {
+                $err = sprintf("  Exception %s in %s(), %s\n", get_class($ex), __FUNCTION__, $ex->getMessage());
+                fwrite(STDERR, $err); // because generator hides error
+                static::$urlData = []; // cache failure for next test method
+                throw $ex;
+            }
         }
         $i = 0;
         foreach (static::$urlData as $name => $data) {
