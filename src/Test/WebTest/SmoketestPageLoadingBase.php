@@ -44,10 +44,11 @@ class SmoketestPageLoadingBase extends WebTestBase
 
         $client = $this->getClient(true);
         $ex = null;
+        $crawler = null;
         try {
             $crawler = $client->request($method, $path);
             $code = $client->getResponse()->getStatusCode();
-            $msg = 'WRONG status code';
+            $msg = ''; // is set later when needed
         } catch (\Exception $ex) {
             $code = self::EXCEPTION_CODE;
             $msg = $ex->getMessage();
@@ -59,11 +60,11 @@ class SmoketestPageLoadingBase extends WebTestBase
         switch ($code) {
             case Response::HTTP_NOT_FOUND:
             case Response::HTTP_INTERNAL_SERVER_ERROR:
-                $msg .= ': '.$this->getPageLoadingFailure($crawler, $this->getName());
+                $msg = $this->getPageLoadingFailure($crawler, $this->getName(), $msg);
                 break;
         }
 
-        return array('code' => $code, 'msg' => $msg, 'exception' => $ex);
+        return array('code' => $code, 'msg' => $msg, 'exception' => $ex, 'crawler' => $crawler);
     }
 
     protected function checkRedirectAw(array &$aw, $method, $path, $info)
@@ -134,7 +135,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
         if ($aw['code'] !== Response::HTTP_OK) {
-            $matched = $this->matchAnyOf($aw['code'], $aw['msg'], $info->knownProblem);
+            $matched = $this->matchAnyOf($aw, $info->knownProblem);
             if (null === $matched) {
                 // no match, fail
                 $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
@@ -155,10 +156,12 @@ class SmoketestPageLoadingBase extends WebTestBase
     {
         if (null === $method && null === $url && null === $info) {
             $this->markTestSkipped('OK, no expected failure');
+
+            return;
         }
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
-        $matched = $this->matchAnyOf($aw['code'], $aw['msg'], $info->expectError);
+        $matched = $this->matchAnyOf($aw, $info->expectError);
         if (null !== $matched) {
             // matches
             if (isset($matched['pass']) && $matched['pass']) {
@@ -390,16 +393,20 @@ class SmoketestPageLoadingBase extends WebTestBase
     }
 
     /**
-     * Checks if error ($msg and $code) match any of the given variants.
+     * Checks if error (msg and code in $aw) match any of the given variants.
      *
-     * @param int    $code  error code
-     * @param string $msg   error message
-     * @param many[] $anyOf ['msg' => string, 'code' => int, ...], msg or code must be present)
+     * @param mixed[] $aw    as returned by loadPage(): ['code'=> int (error code), 'msg' => string (error message), ...
+     * @param mixed[] $anyOf ['msg' => string, 'code' => int, ...], msg or code must be present)
      *
      * @return null|array matching element of $anyOf (with ['name'] set to key), null else
      */
-    private static function matchAnyOf($code, $msg, array $anyOf)
+    private function matchAnyOf(array &$aw, array $anyOf)
     {
+        if (null !== $aw['crawler']) {
+            $aw['msg'] = static::getPageLoadingFailure($aw['crawler'], $this->getName(), $aw['msg']); // also updates parameter $aw
+        }
+        $msg = $aw['msg'];
+        $code = $aw['code'];
         foreach ($anyOf as $name => $any) {
             if (is_string($any)) {
                 $match = $any;
@@ -472,8 +479,8 @@ class SmoketestPageLoadingBase extends WebTestBase
     {
         $code = $aw['code'];
         if (Response::HTTP_OK !== $code && isset($info->passOrAnyOf)) {
+            $matched = $this->matchAnyOf($aw, $info->passOrAnyOf);
             $msg = $aw['msg'];
-            $matched = $this->matchAnyOf($code, $msg, $info->passOrAnyOf);
             if (null === $matched) {
                 // no match, will fail
             } elseif (isset($matched['pass']) && $matched['pass']) {

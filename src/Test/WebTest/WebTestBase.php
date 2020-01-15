@@ -106,7 +106,7 @@ class WebTestBase extends WebTestCase
      *
      * @return string explication of failure
      */
-    public static function getPageLoadingFailure($crawler, $testName)
+    public static function getPageLoadingFailure($crawler, $testName, $msgIn = null)
     {
         $errTitle = 'UNKNOWN';
         $crTitle = $crawler->filter('div.text-exception h1');
@@ -167,6 +167,12 @@ class WebTestBase extends WebTestCase
         }
         if (false !== strpos($msg, ' command: wkhtmltopdf ')) {
             $msg = 'local problem with wkhtmltopdf'.substr($msg, strpos($msg, ';'));
+        }
+        if ('' === $msgIn) {
+            $msgIn = 'WRONG status code'; // set default error message
+        }
+        if ($msgIn) {
+            $msg = $msgIn.': '.$msg;
         }
 
         return $msg;
