@@ -13,6 +13,8 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 
 class WebTestBase extends WebTestCase
 {
+    const WRONG_STATUS_CODE_MSG = 'WRONG status code';
+
     /**
      * @var Client
      */
@@ -169,7 +171,7 @@ class WebTestBase extends WebTestCase
             $msg = 'local problem with wkhtmltopdf'.substr($msg, strpos($msg, ';'));
         }
         if ('' === $msgIn) {
-            $msgIn = 'WRONG status code'; // set default error message
+            $msgIn = static::WRONG_STATUS_CODE_MSG; // set default error message
         }
         if ($msgIn) {
             $msg = $msgIn.': '.$msg;

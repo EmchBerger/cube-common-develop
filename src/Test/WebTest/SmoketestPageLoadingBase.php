@@ -422,6 +422,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
         $msg = $aw['msg'];
         $code = $aw['code'];
+        $anyCodeMatched = false;
         foreach ($anyOf as $name => $any) {
             if (is_string($any)) {
                 $match = $any;
@@ -436,6 +437,7 @@ class SmoketestPageLoadingBase extends WebTestBase
             } else {
                 $match = $any['msg'];
             }
+            $anyCodeMatched = true;
             try {
                 if (preg_match('~'.$match.'~', $msg)) {
                     $any['name'] = $name;
@@ -447,6 +449,10 @@ class SmoketestPageLoadingBase extends WebTestBase
             } catch (\PHPUnit\Framework\Error\Warning $w) {
                 throw new \Exception('Invalid "'.$name.'.msg" in _special.yml, must be a pattern. '.$w->getMessage());
             }
+        }
+        if ($anyCodeMatched) { // remove "code" from message, gives some hint
+            $newStatus = trim(strtr(static::WRONG_STATUS_CODE_MSG, ['code' => '']));
+            $aw['msg'] = strtr($aw['msg'], [static::WRONG_STATUS_CODE_MSG => $newStatus]);
         }
 
         return null;
