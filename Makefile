@@ -6,7 +6,7 @@ help:
 	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z-]+:.*?## .*$$/ {printf "\033[32m%-15s\033[0m %s\n", $$1, $$2}' Makefile | sort
 
 # specific to cube-common-develop
-thisFilesDir = $(dir $(lastword $(MAKEFILE_LIST)))
+thisFilesDir := $(dir $(lastword $(MAKEFILE_LIST)))
 cubeDevDir = $(thisFilesDir)
 checkScript = $(cubeDevDir)/src/CodeStyle/check-commit-cube.sh
 
