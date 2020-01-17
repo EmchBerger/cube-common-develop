@@ -282,7 +282,7 @@ runPreCommitComChecks() {
     cfgFile=.pre-commit-config-postcube.yaml
     # note to SC2009: using pgrep does not work here
     #   shellcheck disable=SC2009
-    if [ -f "$cfgFile" ] && ps -p "$PPID" -o args= | grep -q -e '\bgit\b' -e '^/bin/bash$' -e '^bash$'
+    if [ -f "$cfgFile" ] && ps -p "$PPID" -o args= | grep -q -v -e '\bpython.*\bpre-commit\b' -e 'runningInContainer'
     then
         # has hook file and is directly run by git hook (not pre-commit, not in docker) or interactive shell
         if hash pre-commit 2>/dev/null
