@@ -369,6 +369,19 @@ class SmoketestPageLoadingBase extends WebTestBase
         return $buffer;
     }
 
+    public function getActualOutput()
+    {
+        // overwrite parent function to shorten shown output
+
+        $output = parent::getActualOutput();
+        $len = strlen($output);
+        if ($len > 64) {
+            $output = substr($output, 0, 32)."...(c=$len)";
+        }
+
+        return $output;
+    }
+
     protected static function replaceUrlParameter($url, $info, $method, array $defaultReplace = array())
     {
         $nr = 1;
