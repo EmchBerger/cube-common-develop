@@ -4,7 +4,7 @@ namespace Tests\CubeTools\CubeCommonDevelop\Test;
 
 use CubeTools\CubeCommonDevelop\Test\MoreAssertionsTrait;
 
-class MoreAssertionsTest extends \PHPUnit\Framework\TestCase
+class MoreAssertionsTraitTest extends \PHPUnit\Framework\TestCase
 {
     use MoreAssertionsTrait;
 
