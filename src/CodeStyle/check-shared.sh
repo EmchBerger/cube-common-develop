@@ -287,7 +287,7 @@ runPreCommitComChecks() {
         # has hook file and is directly run by git hook (not pre-commit, not in docker) or interactive shell
         if hash pre-commit 2>/dev/null
         then # pre-commit exists
-            if pre-commit run --config "$cfgFile"
+            if doRunPreCommit pre-commit run --config "$cfgFile"
             then
                 true passed
             else
@@ -298,6 +298,22 @@ runPreCommitComChecks() {
             echo '    "pre-commit" is not installed, install it by running "pip install pre-commit"'
             pre-commit run --config "cfgFile" || showWarning
         fi
+    fi
+}
+
+doRunPreCommit() {
+    local noFileList
+    if [ -n "$whenNoMerge" ]; then noFileList=1 # a merge
+    elif [ -n "${fileList:-}" ]; then noFileList= # check-files-cube.sh
+    elif [ "${against:-}" = HEAD ] && [ -z "${cachedDiff:-}" ]; then noFileList=1 # no argument ref and not --cached
+    else noFileList=
+    fi
+    if [ -z "$noFileList" ]
+    then
+        showCommand "$@"
+        "$@"
+    else
+         $gitListFiles | $xArgs0 "$@" --files
     fi
 }
 
