@@ -2,12 +2,12 @@
 
 spl_autoload_register(function ($class) {
     $loadClass = function ($localName) use ($class) {
+        $prefix = 'CubeTools\CubeCommonDevelop\CodeStyle\PhpStanDummy\Classes\\';
         try {
-            $prefix = 'CubeTools\CubeCommonDevelop\CodeStyle\PhpStanDummy\Classes\\';
             $s = class_alias($prefix.$localName, $class);
         } catch (\Throwable $e) {
             $msg = sprintf("Exception %s while loading dummy for '%s'\n", get_class($e), $class);
-            echo $msg;
+            echo $msg; // print to show which class could not get it's dummy, rest is in traceback
             throw $e;
         }
         if (false === $s) {
