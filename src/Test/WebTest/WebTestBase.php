@@ -165,7 +165,8 @@ class WebTestBase extends WebTestCase
                 $msg .= sprintf('no details because no html answer');
             }
         } catch (\Exception $e) {
-            $msg .= sprintf('no details because writing %s failed, %s)', $file, $e);
+            $errMsg = get_class($e).': '.$e->getMessage();
+            $msg .= sprintf('no details because writing %s failed, %s)', $file, $errMsg);
         }
         if (false !== strpos($msg, ' command: wkhtmltopdf ')) {
             $msg = 'local problem with wkhtmltopdf'.substr($msg, strpos($msg, ';'));
