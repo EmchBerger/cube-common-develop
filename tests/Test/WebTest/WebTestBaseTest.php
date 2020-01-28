@@ -4,6 +4,7 @@ namespace Tests\CubeTools\CubeCommonDevelop\Test\WebTest;
 
 use CubeTools\CubeCommonDevelop\Test\WebTest\WebTestBase;
 use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\DomCrawler\Crawler;
 
 class WebTestBaseTest extends \PHPUnit\Framework\TestCase
 {
@@ -24,6 +25,48 @@ class WebTestBaseTest extends \PHPUnit\Framework\TestCase
         $paramObj->flashBag = array('a' => 136, 'b' => 'x', 93 => array('x' => 7));
         $msg2 = WebTestBase::msgUnexpectedRedirect($client);
         $this->assertNotSame($msg, $msg2, 'silly flashbag is shown'); // and no error has happened
+    }
+
+    public function testGetPageLoadingFailureHtmlEmpty()
+    {
+        $crawler = new Crawler(null, 'https://cube.example.com/page');
+        $testName = __FUNCTION__;
+
+        $failMsg = WebTestBase::getPageLoadingFailure($crawler, $testName);
+
+        $this->assertContains('UNKNOWN', $failMsg);
+        $this->assertNotContains('WRONG', $failMsg, 'NO default error reason');
+
+        $failMsg = WebTestBase::getPageLoadingFailure($crawler, $testName, '');
+        $this->assertContains('UNKNOWN', $failMsg);
+        $this->assertContains('WRONG', $failMsg, 'default error reason');
+
+        $originalMessage = 'original message';
+        $failMsg = WebTestBase::getPageLoadingFailure($crawler, $testName, $originalMessage);
+        $this->assertContains('UNKNOWN', $failMsg);
+        $this->assertNotContains('WRONG', $failMsg, 'NO default error reason');
+        $this->assertContains($originalMessage, $failMsg, 'original message');
+    }
+
+    public function testGetPageLoadingFailureHtmlTitle()
+    {
+        $crawler = new Crawler(null, 'https://cube.example.com/page');
+        $testName = __FUNCTION__;
+
+        $errTitle = 'err title '.random_int(1, 128);
+        $crawler->addHtmlContent('<html><head><title>'.$errTitle);
+
+        $failMsg = WebTestBase::getPageLoadingFailure($crawler, $testName);
+
+        $this->assertContains($errTitle, $failMsg, 'title msg');
+
+        $errHeading = 'error in h element '.random_int(1, 128);
+        $crawler->clear();
+        $crawler->addHtmlContent('<html><head><title>err title</title></head><body><div class=exception-message-wrapper><h1>'.$errHeading);
+
+        $failMsg = WebTestBase::getPageLoadingFailure($crawler, $testName);
+
+        $this->assertContains($errHeading, $failMsg, 'heading msg');
     }
 
     private function getMockClient($paramObj)
