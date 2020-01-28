@@ -301,18 +301,20 @@ runPreCommitComChecks() {
     fi
 }
 
+# runs pre-commit (= arg 1) with or without file list
 doRunPreCommit() {
+    true "${1:?no command given (probaly pre-commit)}"
     local noFileList
     if [ -n "$whenNoMerge" ]; then noFileList=1 # a merge
     elif [ -n "${fileList:-}" ]; then noFileList= # check-files-cube.sh
-    elif [ "${against:-}" = HEAD ] && [ -z "${cachedDiff:-}" ]; then noFileList=1 # no argument ref and not --cached
-    else noFileList=
+    elif [ "${against:-}" = HEAD ] && [ -z "${cachedDiff:-}" ]; then noFileList=1 # normal: no argument ref and not --cached
+    else noFileList= # ref or --cached given
     fi
     if [ -z "$noFileList" ]
-    then
+    then # pre-commit finds the files itself
         showCommand "$@"
         "$@"
-    else
+    else # pass files to pre-commit
          $gitListFiles | $xArgs0 "$@" --files
     fi
 }
