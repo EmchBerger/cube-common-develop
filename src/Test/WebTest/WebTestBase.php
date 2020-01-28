@@ -128,16 +128,7 @@ class WebTestBase extends WebTestCase
             return $errTitle;
         }
 
-        $i = strpos($errTitle, "\n");
-        if ($i !== false) {
-            $j = strrpos($errTitle, "\n");
-            if ($i == $j) {
-                $sep = ' \n ';
-            } else {
-                $sep = ' \n..\n ';
-            }
-            $errTitle = substr_replace($errTitle, $sep, $i, $j - $i + 1);
-        }
+        $errTitle = static::onOneLine($errTitle);
         $msg = sprintf('%s; ', $errTitle);
 
         $file = '??'; // in case next line fails
@@ -301,6 +292,29 @@ class WebTestBase extends WebTestCase
         if (0 !== $r) {
             throw new \Exception("doctrine mapping is wrong ($r)", $r, $oldEx);
         }
+    }
+
+    /**
+     * Shortens a message to first and last line with indication of skip and "\n" between.
+     *
+     * @param string $msg message to put on one line
+     *
+     * @return string shortened message
+     */
+    protected static function onOneLine($msg)
+    {
+        $i = strpos($msg, "\n");
+        if ($i !== false) {
+            $j = strrpos($msg, "\n");
+            if ($i == $j) {
+                $sep = ' \n ';
+            } else {
+                $sep = ' \n..\n ';
+            }
+            $msg = substr_replace($msg, $sep, $i, $j - $i + 1);
+        }
+
+        return $msg;
     }
 
     /**
