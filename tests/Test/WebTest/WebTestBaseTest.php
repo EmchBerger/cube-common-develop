@@ -27,6 +27,39 @@ class WebTestBaseTest extends \PHPUnit\Framework\TestCase
         $this->assertNotSame($msg, $msg2, 'silly flashbag is shown'); // and no error has happened
     }
 
+    public function testOnOneLine()
+    {
+        $rSmokeTestCls = new \ReflectionClass(WebTestBase::class);
+        $rOnOneLine = $rSmokeTestCls->getMethod('onOneLine');
+        $rOnOneLine->setAccessible(true);
+        $onOneLine = function ($msg) use ($rOnOneLine) {
+            return $rOnOneLine->invoke(null, $msg);
+        };
+
+        $msgIn = 'a123b';
+        $msgOut = $onOneLine($msgIn);
+        $this->assertSame($msgIn, $msgOut, 'is one line');
+
+        $lineA = 'a1A';
+        $lineZ = 'b23B';
+        $msgIn = "$lineA\n$lineZ";
+        $msgOut = $onOneLine($msgIn);
+        $this->assertContains($lineA, $msgOut, 'first line');
+        $this->assertContains($lineZ, $msgOut, 'last line');
+        $this->assertContains(' \n ', $msgOut, 'sep');
+        $this->assertNotContains('..', $msgOut, 'nothing skipped');
+
+        $lineA = 'a-sjfdkl1';
+        $lineZ = 'b-usiefkla2';
+        $lineO = 'xgwlxcgs';
+        $msgIn = "$lineA\n$lineO\nksjkls\n$lineZ";
+        $msgOut = $onOneLine($msgIn); // r
+        $this->assertContains($lineA, $msgOut, 'first line');
+        $this->assertContains($lineZ, $msgOut, 'last line');
+        $this->assertNotContains($lineO, $msgOut, 'line between');
+        $this->assertContains(' \n..\n ', $msgOut, 'skipped sep');
+    }
+
     public function testGetPageLoadingFailureHtmlEmpty()
     {
         $crawler = new Crawler(null, 'https://cube.example.com/page');
