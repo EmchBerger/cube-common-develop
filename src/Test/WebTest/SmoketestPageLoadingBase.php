@@ -44,10 +44,11 @@ class SmoketestPageLoadingBase extends WebTestBase
 
         $client = $this->getClient(true);
         $ex = null;
+        $crawler = null;
         try {
             $crawler = $client->request($method, $path);
             $code = $client->getResponse()->getStatusCode();
-            $msg = 'WRONG status code';
+            $msg = ''; // is set later when needed
         } catch (\Exception $ex) {
             $code = self::EXCEPTION_CODE;
             $msg = $ex->getMessage();
@@ -59,11 +60,11 @@ class SmoketestPageLoadingBase extends WebTestBase
         switch ($code) {
             case Response::HTTP_NOT_FOUND:
             case Response::HTTP_INTERNAL_SERVER_ERROR:
-                $msg .= ': '.$this->getPageLoadingFailure($crawler, $this->getName());
+                $msg = $this->getPageLoadingFailure($crawler, $this->getName(), $msg);
                 break;
         }
 
-        return array('code' => $code, 'msg' => $msg, 'exception' => $ex);
+        return array('code' => $code, 'msg' => $msg, 'exception' => $ex, 'crawler' => $crawler);
     }
 
     protected function checkRedirectAw(array &$aw, $method, $path, $info)
@@ -73,7 +74,7 @@ class SmoketestPageLoadingBase extends WebTestBase
 
         if (Response::HTTP_OK === $code) {
             if (isset($info->redirect)) {
-                $this->AssertTrue(false, 'expected redirect to '.$info->redirect);
+                $this->assertTrue(false, 'expected redirect to '.$info->redirect);
             }
         } elseif (self::EXCEPTION_CODE === $code) {
             // skip, is handled later
@@ -134,7 +135,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
         if ($aw['code'] !== Response::HTTP_OK) {
-            $matched = $this->matchAnyOf($aw['code'], $aw['msg'], $info->knownProblem);
+            $matched = $this->matchAnyOf($aw, $info->knownProblem);
             if (null === $matched) {
                 // no match, fail
                 $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
@@ -155,10 +156,12 @@ class SmoketestPageLoadingBase extends WebTestBase
     {
         if (null === $method && null === $url && null === $info) {
             $this->markTestSkipped('OK, no expected failure');
+
+            return;
         }
         $url = $this->replaceUrlParameter($url, $info, $method);
         $aw = $this->loadPage($method, $url, $info);
-        $matched = $this->matchAnyOf($aw['code'], $aw['msg'], $info->expectError);
+        $matched = $this->matchAnyOf($aw, $info->expectError);
         if (null !== $matched) {
             // matches
             if (isset($matched['pass']) && $matched['pass']) {
@@ -198,7 +201,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         $routes = self::$kernel->getContainer()->get('router')->getRouteCollection();
         $result = array();
         foreach ($routes as $name => $route) {
-            // only use interesing urls, the rest is too much uninteresing data
+            // only use interesting urls, the rest is too much uninteresting data
             if (static::interestedInRoute($route)) {
                 $infos = array('path' => $route->getPath(),
                     'methods' => $route->getMethods(),
@@ -294,12 +297,27 @@ class SmoketestPageLoadingBase extends WebTestBase
     protected static $urlData = null;
 
     /**
+     * data provider
+     *
      * @param string $testMethodName name of test method the dataprovider is called for
      */
     public static function listUrls($testMethodName)
     {
         if (static::$urlData === null) {
-            static::$urlData = static::loadUrlData();
+            $ex = null;
+            try {
+                static::$urlData = static::loadUrlData();
+            } catch (\Exception $ex) {
+                // handled below
+            } catch (\Throwable $ex) { // php 7+
+               // handled below
+            }
+            if ($ex) {
+                $err = sprintf("  Exception %s in %s(), %s\n", get_class($ex), __FUNCTION__, $ex->getMessage());
+                fwrite(STDERR, $err); // because generator hides error
+                static::$urlData = []; // cache failure for next test method
+                throw $ex;
+            }
         }
         $i = 0;
         foreach (static::$urlData as $name => $data) {
@@ -369,6 +387,19 @@ class SmoketestPageLoadingBase extends WebTestBase
         return $buffer;
     }
 
+    public function getActualOutput()
+    {
+        // overwrite parent function to shorten shown output
+
+        $output = parent::getActualOutput();
+        $len = strlen($output);
+        if ($len > 64) {
+            $output = substr($output, 0, 32)."...(c=$len)";
+        }
+
+        return $output;
+    }
+
     protected static function replaceUrlParameter($url, $info, $method, array $defaultReplace = array())
     {
         $nr = 1;
@@ -390,16 +421,21 @@ class SmoketestPageLoadingBase extends WebTestBase
     }
 
     /**
-     * Checks if error ($msg and $code) match any of the given variants.
+     * Checks if error (msg and code in $aw) match any of the given variants.
      *
-     * @param int    $code  error code
-     * @param string $msg   error message
-     * @param many[] $anyOf ['msg' => string, 'code' => int, ...], msg or code must be present)
+     * @param mixed[] $aw    answer from loadPage()
+     * @param mixed[] $anyOf ['msg' => string, 'code' => int, ...], msg or code must be present)
      *
      * @return null|array matching element of $anyOf (with ['name'] set to key), null else
      */
-    private static function matchAnyOf($code, $msg, array $anyOf)
+    private function matchAnyOf(array &$aw, array $anyOf)
     {
+        if (null !== $aw['crawler']) {
+            $aw['msg'] = static::getPageLoadingFailure($aw['crawler'], $this->getName(), $aw['msg']); // also updates parameter $aw
+        }
+        $msg = $aw['msg'];
+        $code = $aw['code'];
+        $anyCodeMatched = false;
         foreach ($anyOf as $name => $any) {
             if (is_string($any)) {
                 $match = $any;
@@ -414,6 +450,7 @@ class SmoketestPageLoadingBase extends WebTestBase
             } else {
                 $match = $any['msg'];
             }
+            $anyCodeMatched = true;
             try {
                 if (preg_match('~'.$match.'~', $msg)) {
                     $any['name'] = $name;
@@ -426,6 +463,10 @@ class SmoketestPageLoadingBase extends WebTestBase
                 throw new \Exception('Invalid "'.$name.'.msg" in _special.yml, must be a pattern. '.$w->getMessage());
             }
         }
+        if ($anyCodeMatched) { // remove "code" from message, gives some hint
+            $newStatus = trim(strtr(static::WRONG_STATUS_CODE_MSG, ['code' => '']));
+            $aw['msg'] = strtr($aw['msg'], [static::WRONG_STATUS_CODE_MSG => $newStatus]);
+        }
 
         return null;
     }
@@ -433,8 +474,8 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Checks if redirect is to expected target.
      *
-     * @param Client $client
-     * @param array  $info
+     * @param Symfony/Component/BrowserKit/Client $client
+     * @param mixed[] $info
      * @param string $redirect url redirected to
      */
     private function checkRedirectTarget($client, $info, $redirect)
@@ -449,7 +490,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Throws a cached exception.
      *
-     * @param many[] $aw with elements [ 'code' => str|int, 'msg' => str|\Exception ]
+     * @param mixed[] $aw with elements [ 'code' => str|int, 'msg' => str|\Exception ]
      *
      * @throws \Exception cached exception
      */
@@ -463,17 +504,19 @@ class SmoketestPageLoadingBase extends WebTestBase
     /**
      * Checks the configuration "passorAnyOf".
      *
-     * @param array $aw   answer from loadPage()
-     * @param array $info
+     * @param mixed[] $aw   answer from loadPage()
+     * @param mixed[] $info
      *
      * @return int code for into $aw
      */
-    private function passOrAnyOf(array $aw, $info)
+    private function passOrAnyOf(array &$aw, $info)
     {
         $code = $aw['code'];
-        if (Response::HTTP_OK !== $code && isset($info->passOrAnyOf)) {
+        if (Response::HTTP_OK === $code) {
+            // fine
+        } elseif (isset($info->passOrAnyOf)) {
+            $matched = $this->matchAnyOf($aw, $info->passOrAnyOf);
             $msg = $aw['msg'];
-            $matched = $this->matchAnyOf($code, $msg, $info->passOrAnyOf);
             if (null === $matched) {
                 // no match, will fail
             } elseif (isset($matched['pass']) && $matched['pass']) {
@@ -483,6 +526,8 @@ class SmoketestPageLoadingBase extends WebTestBase
             } else {
                 $this->markTestIncomplete('failure matched ('.$matched['name'].'): '.$msg);
             }
+        } else {
+            $this->matchAnyOf($aw, []); // call to set $aw['msg']
         }
 
         return $code;
