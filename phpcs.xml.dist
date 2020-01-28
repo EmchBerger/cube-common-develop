@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<!-- config for vendor/bin/phpcs ... -->
 <ruleset name="cube">
     <description>Coding style for cube tools, based on the one for Symfony2.</description>
     <rule ref="./src/CodeStyle/phpcs_cube.xml"/>
@@ -6,6 +7,7 @@
     <config name="severity" value="2"/>
 
     <exclude-pattern>*/vendor/</exclude-pattern>
+    <exclude-pattern>*/src/CodeStyle/PhpStanDummy/Classes/</exclude-pattern>
 
     <config name="ignore_warnings_on_exit" value="1"/>
 </ruleset>

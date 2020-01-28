@@ -60,6 +60,12 @@ validate-cs-fixer: ## runs php-cs-fixer (code style)
 validate-all: validate-codestyle validate-cs-fixer validate-stan ## runs all validation-* commands
 .PHONY: validate-all
 
+.phpstan_baseline.neon: make-phpstan-baseline
+make-phpstan-baseline: ## updates ./.phpstan_baseline.neon, please check before committing
+	vendor/bin/phpstan analyse --error-format baselineNeon $$(git ls-files '*.php') > .phpstan_baseline.neon || true
+	@echo .phpstan_baseline.neon updated, please check it before committing
+.PHONY: make-phpstan-baseline
+
 # general
 
 update-makefile-from-cube-common-develop: ## update the makefile section from cube-common-develop

@@ -1,0 +1,47 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\$event of method CubeTools\\\\CubeCommonDevelop\\\\ComposerCommands\\:\\:buildTestParameters\\(\\) has invalid typehint type Composer\\\\Script\\\\Event\\.$#"
+			count: 1
+			path: src/ComposerCommands.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_SkippedTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\SkippedTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_IncompleteTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\IncompleteTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_RiskyTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\RiskyTestError not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Bundle\\\\FrameworkBundle\\\\Console\\\\Application not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
+		-
+			message: "#^Instantiated class Doctrine\\\\Bundle\\\\DoctrineBundle\\\\Command\\\\Proxy\\\\ValidateSchemaCommand not found\\.$#"
+			count: 1
+			path: src/Test/WebTest/WebTestBase.php
+
