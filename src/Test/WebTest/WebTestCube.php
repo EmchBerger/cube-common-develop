@@ -4,6 +4,8 @@ namespace CubeTools\CubeCommonDevelop\Test\WebTest;
 
 use CubeTools\CubeCommonDevelop\Test\MoreAssertionsTrait;
 use Symfony\Component\BrowserKit\Client;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\DomCrawler\Form;
 
 class WebTestCube extends WebTestBase
 {
@@ -95,9 +97,9 @@ class WebTestCube extends WebTestBase
     /**
      * Click on a link and check the http reply.
      *
-     * @param Client $client
-     * @param Link   $link     The link to follow
-     * @param bool   $redirect (see in checkResponse)
+     * @param Client                             $client
+     * @param \Symfony\Component\DomCrawler\Link $link     The link to follow
+     * @param bool                               $redirect (see in checkResponse)
      *
      * @return Crawler
      */
@@ -151,7 +153,7 @@ class WebTestCube extends WebTestBase
      * @param string $url    url to page to check
      * @param string $title  expected title on page
      *
-     * @return Cralwer crawler of the full page
+     * @return Crawler crawler of the full page
      */
     public function basicPageCheck(Client $client, $url, $title)
     {
@@ -192,7 +194,7 @@ class WebTestCube extends WebTestBase
      * @param string $selector selector for links, like 'a[href*="?sort="]' or simply 'a'
      * @param int    $minLinks minimum number of links to find
      *
-     * @return Links[] tested links
+     * @return \Symfony\Component\DomCrawler\Link[] tested links
      */
     public function checkLinksLoadable($client, $selector, $minLinks = 1)
     {
@@ -211,9 +213,9 @@ class WebTestCube extends WebTestBase
     /**
      * Fills all empty Form fields with some value.
      *
-     * @param Symfony\Component\DomCrawler\Form $form
+     * @param Form $form
      *
-     * @return Symfony\Component\DomCrawler\Form
+     * @return Form
      */
     public function fillForm($form)
     {
@@ -232,7 +234,7 @@ class WebTestCube extends WebTestBase
     /**
      * Get errors of forms from the profile.
      *
-     * @param Symfony\Component\HttpKernel\Profiler\Profile $profile
+     * @param \Symfony\Component\HttpKernel\Profiler\Profile $profile
      *
      * @return string[]|null all form errors with the keys containing the name of the form and the child
      */
@@ -258,10 +260,10 @@ class WebTestCube extends WebTestBase
     /**
      * Get a value for a form field.
      *
-     * @param Symfony\Component\DomCrawler\Field\FormField $element form element to get the value for
+     * @param \Symfony\Component\DomCrawler\Field\FormField $element form element to get the value for
      * @param int                                          $i       index
      *
-     * @return many value to fill in
+     * @return mixed value to fill in
      */
     protected function getElementValueToFillIn($element, $i)
     {
@@ -295,7 +297,7 @@ class WebTestCube extends WebTestBase
      *
      * @param Client $client current test client
      *
-     * @return User user object of logged in user
+     * @return \Symfony\Component\Security\Core\User\UserInterface user object of logged in user
      *
      * @throws Exception when no user is logged in (probably because no request was done before)
      */
@@ -318,7 +320,7 @@ class WebTestCube extends WebTestBase
      *
      * Because the error message is irritating when kernel is not ready.
      *
-     * @param type $client
+     * @param Client $client
      */
     protected static function enableProfiler($client)
     {
