@@ -295,7 +295,7 @@ runPreCommitComChecks() {
                 showWarning
             fi
         else
-            echo '    "pre-commit" is not installed, install it by running "pip install pre-commit"'
+            echo '    "pre-commit" is not installed, install it by running "curl https://pre-commit.com/install-local.py | python3 -"'
             pre-commit run --config "cfgFile" || showWarning
         fi
     fi
