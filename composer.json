@@ -27,7 +27,6 @@
         "phpstan/phpstan": "to check more things in the code"
     },
     "conflict": {
-        "phpunit/phpunit": "^8",
         "doctrine/orm": "<2.5.0"
     },
     "autoload": {

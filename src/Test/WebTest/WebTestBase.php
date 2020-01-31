@@ -195,8 +195,10 @@ class WebTestBase extends WebTestCase
      * Clear the cached client for a clean start of the next test case class.
      *
      * This method is called after all test methods of this class have run.
+     *
+     * @afterClass
      */
-    public static function tearDownAfterClass()
+    public static function tearDownClientAfterClass()
     {
         if (self::$client) { // only when valid client
             self::$client = null;

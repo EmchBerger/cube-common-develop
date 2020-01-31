@@ -11,7 +11,10 @@ class MatchingRoutesTest extends KernelTestCase
 {
     private static $router;
 
-    public static function setUpBeforeClass()
+    /**
+     * @beforeClass
+     */
+    public static function setUpRouterBeforeClass()
     {
         static::bootKernel();
         self::$router = self::$kernel->getContainer()->get('router');
