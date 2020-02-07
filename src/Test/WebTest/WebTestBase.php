@@ -16,6 +16,11 @@ class WebTestBase extends WebTestCase
     const WRONG_STATUS_CODE_MSG = 'WRONG status code';
 
     /**
+     * @var array with url and method to check if connection works after login, can be set in subclass
+     */
+    protected static $connectionCheckUrl = array('method' => 'GET', 'url' => '/profile/');
+
+    /**
      * @var Client
      */
     private static $client;
@@ -26,16 +31,23 @@ class WebTestBase extends WebTestCase
     private static $conditionsChecked = false;
 
     /**
-     * @var array with url and method to check if connection works after login, can be set in subclass
-     */
-    protected static $connectionCheckUrl = array('method' => 'GET', 'url' => '/profile/');
-
-    /**
      * @var int counts tests to guess if system is probably working
      */
     private static $probablyWorking = 0;
 
     private $usesClient = false;
+
+    /**
+     * Clear the cached client for a clean start of the next test case class.
+     *
+     * This method is called after all test methods of this class have run.
+     */
+    public static function tearDownAfterClass()
+    {
+        if (self::$client) { // only when valid client
+            self::$client = null;
+        }
+    }
 
     /**
      * Gets a client already logged in, cached for one test class.
@@ -197,18 +209,6 @@ class WebTestBase extends WebTestCase
         $flash = json_encode($reqst->getSession()->getFlashBag()->peekAll());
 
         return "unexpected redirect (to '$toUrl' from '$rqUrl', flashbag: $flash)";
-    }
-
-    /**
-     * Clear the cached client for a clean start of the next test case class.
-     *
-     * This method is called after all test methods of this class have run.
-     */
-    public static function tearDownAfterClass()
-    {
-        if (self::$client) { // only when valid client
-            self::$client = null;
-        }
     }
 
     protected function runTest()

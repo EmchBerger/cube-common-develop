@@ -20,6 +20,8 @@ class SmoketestPageLoadingBase extends WebTestBase
 {
     const EXCEPTION_CODE = 'exception';
 
+    protected static $urlData = null;
+
     /**
      * @dataProvider listUrls
      */
@@ -30,71 +32,6 @@ class SmoketestPageLoadingBase extends WebTestBase
         $aw['code'] = $this->passOrAnyOf($aw, $info);
         $this->throwIfException($aw);
         $this->assertEquals(Response::HTTP_OK, $aw['code'], $aw['msg']);
-    }
-
-    protected function loadPage($method, $path, $info)
-    {
-        if ($method == 'POST_ANY') {
-            $method = 'POST';
-        } elseif (!in_array($method, array('GET', 'DELETE', 'PATCH', 'POST', 'PUT'))) {
-            $this->markTestIncomplete(sprintf('method %s not yet supported', $method));
-
-            return;
-        }
-
-        $client = $this->getClient(true);
-        $ex = null;
-        $crawler = null;
-        try {
-            $crawler = $client->request($method, $path);
-            $code = $client->getResponse()->getStatusCode();
-            $msg = ''; // is set later when needed
-        } catch (\Exception $ex) {
-            $code = self::EXCEPTION_CODE;
-            $msg = $ex->getMessage();
-        } catch (\Throwable $ex) { // since php7
-            $code = self::EXCEPTION_CODE;
-            $msg = $ex->getMessage();
-        }
-
-        switch ($code) {
-            case Response::HTTP_NOT_FOUND:
-            case Response::HTTP_INTERNAL_SERVER_ERROR:
-                $msg = $this->getPageLoadingFailure($crawler, $this->getName(), $msg);
-                break;
-        }
-
-        return array('code' => $code, 'msg' => $msg, 'exception' => $ex, 'crawler' => $crawler);
-    }
-
-    protected function checkRedirectAw(array &$aw, $method, $path, $info)
-    {
-        $code = $aw['code'];
-        $client = $this->getClient(false);
-
-        if (Response::HTTP_OK === $code) {
-            if (isset($info->redirect)) {
-                $this->assertTrue(false, 'expected redirect to '.$info->redirect);
-            }
-        } elseif (self::EXCEPTION_CODE === $code) {
-            // skip, is handled later
-        } elseif ($client->getResponse()->isRedirect()) {
-            $redirect = $client->getResponse()->getTargetUrl();
-            if (isset($info->redirect)) {
-                $this->checkRedirectTarget($client, $info, $redirect);
-                $aw['code'] = Response::HTTP_OK; // set to pass
-            } else {
-                $aw['msg'] = static::msgUnexpectedRedirect($client);
-            }
-            if ('POST' !== $method && 'DELETE' !== $method) {
-                // simply fail
-            } elseif (false !== strpos($path, $redirect)) {
-                // redirect to a parent URL after POST/DELETE
-                $this->markTestSkipped("maybe {$aw['msg']}");
-            } else {
-                $this->markTestIncomplete($aw['msg']);
-            }
-        }
     }
 
     /**
@@ -294,8 +231,6 @@ class SmoketestPageLoadingBase extends WebTestBase
         return $urls;
     }
 
-    protected static $urlData = null;
-
     /**
      * data provider
      *
@@ -362,18 +297,6 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
     }
 
-    /**
-     * To overwrite in subclass when unknown parameters should be skipped.
-     *
-     * TODO remove if not used anymore.
-     *
-     * @return bool false
-     */
-    protected static function skipUnknownRouteParameters()
-    {
-        return false;
-    }
-
     public function getDataSetAsString($includeData = true)
     {
         $buffer = parent::getDataSetAsString($includeData);
@@ -398,6 +321,83 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
 
         return $output;
+    }
+
+    protected function loadPage($method, $path, $info)
+    {
+        if ($method == 'POST_ANY') {
+            $method = 'POST';
+        } elseif (!in_array($method, array('GET', 'DELETE', 'PATCH', 'POST', 'PUT'))) {
+            $this->markTestIncomplete(sprintf('method %s not yet supported', $method));
+
+            return;
+        }
+
+        $client = $this->getClient(true);
+        $ex = null;
+        $crawler = null;
+        try {
+            $crawler = $client->request($method, $path);
+            $code = $client->getResponse()->getStatusCode();
+            $msg = ''; // is set later when needed
+        } catch (\Exception $ex) {
+            $code = self::EXCEPTION_CODE;
+            $msg = $ex->getMessage();
+        } catch (\Throwable $ex) { // since php7
+            $code = self::EXCEPTION_CODE;
+            $msg = $ex->getMessage();
+        }
+
+        switch ($code) {
+            case Response::HTTP_NOT_FOUND:
+            case Response::HTTP_INTERNAL_SERVER_ERROR:
+                $msg = $this->getPageLoadingFailure($crawler, $this->getName(), $msg);
+                break;
+        }
+
+        return array('code' => $code, 'msg' => $msg, 'exception' => $ex, 'crawler' => $crawler);
+    }
+
+    protected function checkRedirectAw(array &$aw, $method, $path, $info)
+    {
+        $code = $aw['code'];
+        $client = $this->getClient(false);
+
+        if (Response::HTTP_OK === $code) {
+            if (isset($info->redirect)) {
+                $this->assertTrue(false, 'expected redirect to '.$info->redirect);
+            }
+        } elseif (self::EXCEPTION_CODE === $code) {
+            // skip, is handled later
+        } elseif ($client->getResponse()->isRedirect()) {
+            $redirect = $client->getResponse()->getTargetUrl();
+            if (isset($info->redirect)) {
+                $this->checkRedirectTarget($client, $info, $redirect);
+                $aw['code'] = Response::HTTP_OK; // set to pass
+            } else {
+                $aw['msg'] = static::msgUnexpectedRedirect($client);
+            }
+            if ('POST' !== $method && 'DELETE' !== $method) {
+                // simply fail
+            } elseif (false !== strpos($path, $redirect)) {
+                // redirect to a parent URL after POST/DELETE
+                $this->markTestSkipped("maybe {$aw['msg']}");
+            } else {
+                $this->markTestIncomplete($aw['msg']);
+            }
+        }
+    }
+
+    /**
+     * To overwrite in subclass when unknown parameters should be skipped.
+     *
+     * TODO remove if not used anymore.
+     *
+     * @return bool false
+     */
+    protected static function skipUnknownRouteParameters()
+    {
+        return false;
     }
 
     protected static function replaceUrlParameter($url, $info, $method, array $defaultReplace = array())
