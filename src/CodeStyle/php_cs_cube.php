@@ -34,6 +34,7 @@ return (new PhpCsFixer\Config('Cubetools Standard'))
             'align_equals' => null,
         ),
         'no_unused_imports' => true, // to have this set in _reduced also
+        'ordered_class_elements' => true,
     ))
     ->setFinder($finder)
     ->setCacheFile('vendor/.php_cs.cache')
