@@ -316,10 +316,11 @@ class WebTestBase extends WebTestCase
         }
         if ($r->getStatusCode() != 200) {
             $msg = self::getPageLoadingFailure($client->getCrawler(), 'loginError');
-            throw new \Exception(sprintf(
+            $fullMsg = sprintf(
                 'Abort WebTest*: login failed, http status code %d; ',
                 $r->getStatusCode()
-            ).$msg, 0, $oldEx);
+            ).$msg;
+            throw new \Exception($fullMsg, 0, $oldEx);
         }
     }
 }
