@@ -245,9 +245,9 @@ class WebTestCube extends WebTestBase
             return null;
         }
 
-        $errors = array();
+        $errors = [];
         foreach ($formsData['forms'] as $formName => $form) {
-            self::collectFormErrors($errors, $form, array($formName));
+            self::collectFormErrors($errors, $form, [$formName]);
         }
 
         if (count($errors) !== $formsData['nb_errors']) {
@@ -270,7 +270,7 @@ class WebTestCube extends WebTestBase
         $eClass = get_class($element);
         if (false !== strpos($eClass, 'ChoiceFormField')) {
             $options = $element->availableOptionValues();
-            if (array() === $options) {
+            if ([] === $options) {
                 $this->markTestSkipped('no option values for form field '.$element->getName());
             }
             $j = $i % count($options);
@@ -341,7 +341,7 @@ class WebTestCube extends WebTestBase
             $errorsResult[$key] = $key." = '".substr($value, 2)."'";
         }
         foreach ($form['children'] as $childName => $child) {
-            self::collectFormErrors($errorsResult, $child, array_merge($formNames, array($childName)));
+            self::collectFormErrors($errorsResult, $child, array_merge($formNames, [$childName]));
         }
     }
 }

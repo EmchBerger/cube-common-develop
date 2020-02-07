@@ -14,12 +14,12 @@ class XliffFiles
     public static function fixXliffFile($fileName, $doFix = false, $reindent = false)
     {
         if (!file_exists($fileName)) {
-            return array('file not found');
+            return ['file not found'];
         }
         $content = \file_get_contents($fileName);
         $crawler = new Crawler();
         $crawler->addXMLContent($content);
-        $fixed = array();
+        $fixed = [];
         $runs = $crawler->filter('body trans-unit')->each(function (Crawler $unit) use (&$fixed) {
             self::checkUnit($unit, $fixed);
         });
@@ -72,11 +72,11 @@ class XliffFiles
                 $node = $unit->getNode(0);
                 $node->setAttribute('id', $nId);
                 $node->removeAttribute('resname'); // unwanted
-                $fixed[] = 'id of "'.substr(strtr($sourceTxt, array("\n" => "\\n")), 0, 128).'"';
+                $fixed[] = 'id of "'.substr(strtr($sourceTxt, ["\n" => "\\n"]), 0, 128).'"';
             }
         }
         if (false !== strpos($sourceTxt, ' %') && false === strpos($unit->filter('target')->text(), ' %')) {
-            $fixed[] = 'TODO include parameters in source "'.strtr($sourceTxt, array("\n", "\\n")).'" (from target )';
+            $fixed[] = 'TODO include parameters in source "'.strtr($sourceTxt, ["\n", "\\n"]).'" (from target )';
         }
     }
 

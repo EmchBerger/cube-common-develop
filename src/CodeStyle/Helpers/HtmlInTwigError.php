@@ -15,7 +15,7 @@ class HtmlInTwigError extends \LibXMLError
 
     public function getErrLevel()
     {
-        return array(LIBXML_ERR_WARNING => 'W', LIBXML_ERR_ERROR => 'E', LIBXML_ERR_FATAL => 'F')[$this->level];
+        return [LIBXML_ERR_WARNING => 'W', LIBXML_ERR_ERROR => 'E', LIBXML_ERR_FATAL => 'F'][$this->level];
     }
 
     public function getContextA()

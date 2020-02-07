@@ -18,7 +18,7 @@ $finder = PhpCsFixer\Finder::create()
     ->exclude('logs')
     ->exclude('var')
     ->in('src')
-    ->append(array('.php_cs.dist'))
+    ->append(['.php_cs.dist'])
 ;
 
 if (is_dir('tests')) {
@@ -26,16 +26,16 @@ if (is_dir('tests')) {
 }
 
 return (new PhpCsFixer\Config('Cubetools Standard'))
-    ->setRules(array(
+    ->setRules([
         '@Symfony' => true,
         //'concat_without_spaces' => false,
-        'binary_operator_spaces' => array(
+        'binary_operator_spaces' => [
             'align_double_arrow' => null,
             'align_equals' => null,
-        ),
+        ],
         'no_unused_imports' => true, // to have this set in _reduced also
         'ordered_class_elements' => true,
-    ))
+    ])
     ->setFinder($finder)
     ->setCacheFile('vendor/.php_cs.cache')
 ;

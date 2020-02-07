@@ -10,14 +10,14 @@ class MoreAssertionsTraitTest extends \PHPUnit\Framework\TestCase
 
     public function testAssertArrayEmptyElementsOnly()
     {
-        $array = array('', null, array(), 0, false);
+        $array = ['', null, [], 0, false];
         MoreAssertionsTrait::assertArrayEmptyElementsOnly($array);
     }
 
     public function testAssertArrayEmptyElementsOnlyFailing()
     {
         $e = null;
-        $array = array(null, 3);
+        $array = [null, 3];
         try {
             MoreAssertionsTrait::assertArrayEmptyElementsOnly($array);
             $this->assertTrue(false, 'Assertion should not have passed');
@@ -31,14 +31,14 @@ class MoreAssertionsTraitTest extends \PHPUnit\Framework\TestCase
 
     public function testAssertArrayNoEmptyElements()
     {
-        $array = array('x', 1, array(''), true);
+        $array = ['x', 1, [''], true];
         $this->assertArrayNoEmptyElements($array);
     }
 
     public function testAssertArrayNoEmptyElementsFailing()
     {
         $e = null;
-        $array = array(5, 'bla', array(null), false);
+        $array = [5, 'bla', [null], false];
         try {
             MoreAssertionsTrait::assertArrayNoEmptyElements($array);
             $this->assertTrue(false, 'Assertion should not have passed');

@@ -12,7 +12,7 @@ namespace CubeTools\CubeCommonDevelop\CodeStyle;
 
 $config = require __DIR__.'/php_cs_cube.php';
 
-$rules = array_merge(array('@PSR2' => true), $config->getRules());
+$rules = array_merge(['@PSR2' => true], $config->getRules());
 unset($rules['@Symfony']);
 $config->setRules($rules);
 

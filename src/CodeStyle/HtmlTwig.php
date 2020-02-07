@@ -11,7 +11,7 @@ class HtmlTwig
         if ($internalErrors) {
             libxml_clear_errors();
         }
-        $errors = array();
+        $errors = [];
         try {
             $content = @file_get_contents($fileName);
             if (!$content) {
@@ -23,12 +23,12 @@ class HtmlTwig
                     $e->level   = LIBXML_ERR_WARNING;
                     $e->message = "not a file\n";
 
-                    return array($e);
+                    return [$e];
                 } elseif (filesize($fileName)) {
                     $e->level   = LIBXML_ERR_ERROR;
                     $e->message = "could not read file\n";
 
-                    return array($e);
+                    return [$e];
                 }
                 $content = ' '; // file is empty
             }
@@ -62,7 +62,7 @@ class HtmlTwig
         $d->loadHTML($html);
         $d         = null;
         $xmlErrors = libxml_get_errors();
-        $errors    = array();
+        $errors    = [];
         $htmlLines = null;
         foreach ($xmlErrors as $error) {
             if (self::ignoreError($error)) {

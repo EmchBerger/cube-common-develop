@@ -16,7 +16,7 @@ class SymfonyCommands
     {
         $autoload = null;
         $appDir = __DIR__.'/../../../../../';
-        $autoloadDirs = array('./vendor/', $appDir.'vendor/');
+        $autoloadDirs = ['./vendor/', $appDir.'vendor/'];
         $autoloadDirs[] = $autoloadDirs[0];
         foreach ($autoloadDirs as $autoloadDir) {
             $autoload = $autoloadDir.'autoload.php';

@@ -31,7 +31,7 @@ class ComposerCommands
         $cfgFile = $config['file'];
         $config['file'] = str_replace('.yml', $postfix.'.yml', $config['file']);
         $config['keep-outdated'] = true;
-        $extras['incenteev-parameters'] = array($config);
+        $extras['incenteev-parameters'] = [$config];
         $package->setExtra($extras);
 
         $ret = ScriptHandler::buildParameters($event);

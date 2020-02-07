@@ -14,14 +14,14 @@ class TranslationFileTest extends KernelTestCase
      *
      * @var string[]
      */
-    protected static $languages = array('en');
+    protected static $languages = ['en'];
 
     /**
      * Add a text from each language file you want to be sure it loaded. To be sure it is not skipped.
      *
      * @var string[]
      */
-    protected static $checkTexts = array('PLEASE DEFINE TEXTS TO CHECK IN THE TEST');
+    protected static $checkTexts = ['PLEASE DEFINE TEXTS TO CHECK IN THE TEST'];
 
     /**
      * @dataProvider listLanguages
@@ -55,7 +55,7 @@ class TranslationFileTest extends KernelTestCase
         $languages = static::getLanguages();
         // TODO automatic check if all are listed (from {app,src/*Bundle}/Resources/translations/*.x*)
         foreach ($languages as $lang) {
-            yield $lang => array($lang);
+            yield $lang => [$lang];
         }
     }
 

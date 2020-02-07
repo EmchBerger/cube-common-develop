@@ -53,11 +53,11 @@ class SymfonyLoadableTest extends TestCase
     public static function getAppNames()
     {
         if (file_exists('public/index.php')) {
-            yield 'index' => array('public/index.php');
+            yield 'index' => ['public/index.php'];
         } else {
-            yield 'prod' => array('web/app.php');
+            yield 'prod' => ['web/app.php'];
             foreach (glob('web/app_*.php') as $appPath) {
-                yield basename($appPath) => array($appPath);
+                yield basename($appPath) => [$appPath];
             }
         }
     }

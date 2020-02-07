@@ -29,7 +29,7 @@ trait MoreAssertionsTrait
         $isNotEmpty = function ($element) {
             return !empty($element);
         };
-        TestCase::assertSame(array(), array_filter($array, $isNotEmpty), $explication);
+        TestCase::assertSame([], array_filter($array, $isNotEmpty), $explication);
     }
 
     /**
@@ -50,7 +50,7 @@ trait MoreAssertionsTrait
         $isEmpty = function ($element) {
             return empty($element);
         };
-        TestCase::assertSame(array(), array_filter($array, $isEmpty), $explication);
+        TestCase::assertSame([], array_filter($array, $isEmpty), $explication);
     }
 
     /**
@@ -72,7 +72,7 @@ trait MoreAssertionsTrait
         $isNotFilled = function ($element) {
             return '' !== $element && count($element) > 0;
         };
-        TestCase::assertSame(array(), array_filter($array, $isNotFilled), $explication);
+        TestCase::assertSame([], array_filter($array, $isNotFilled), $explication);
     }
 
     /**
@@ -93,6 +93,6 @@ trait MoreAssertionsTrait
         $isFilled = function ($element) {
             return '' === $element || count($element) <= 0;
         };
-        TestCase::assertSame(array(), array_filter($array, $isFilled), $explication);
+        TestCase::assertSame([], array_filter($array, $isFilled), $explication);
     }
 }

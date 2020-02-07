@@ -18,7 +18,7 @@ class WebTestBase extends WebTestCase
     /**
      * @var array with url and method to check if connection works after login, can be set in subclass
      */
-    protected static $connectionCheckUrl = array('method' => 'GET', 'url' => '/profile/');
+    protected static $connectionCheckUrl = ['method' => 'GET', 'url' => '/profile/'];
 
     /**
      * @var Client
@@ -109,7 +109,7 @@ class WebTestBase extends WebTestCase
         if ($_GET) {
             /* knp_paginator pas problem when it is set from a previous run
                (it sets it when only a default sorting is set, on the next run it does not match */
-            $_GET = array();
+            $_GET = [];
         }
     }
 
@@ -162,14 +162,14 @@ class WebTestBase extends WebTestCase
             $fileDir = self::$client->getContainer()->getParameter('kernel.cache_dir').'/tests_temp/';
             file_exists($fileDir) || mkdir($fileDir, 0700);
             if (count($crawler) > 0) {
-                $fileName = strtr($testName, array(
+                $fileName = strtr($testName, [
                     '/' => '_',
                     ':' => '_',
                     '\\' => '_',
                     '"' => '_',
                     ' with data set ' => '_',
                     '#' => 'no',
-                ));
+                ]);
                 $file = $fileDir.$fileName.'.html';
                 file_put_contents($file, $crawler->html());
                 $msg .= sprintf('details see in %s)', $file);
@@ -295,7 +295,7 @@ class WebTestBase extends WebTestCase
         $application->add($cmd);
         $cmdName = $cmd->getName();
         $output = new ConsoleOutput(); //writes output directly to console
-        $input = new ArrayInput(array('command' => $cmdName));
+        $input = new ArrayInput(['command' => $cmdName]);
         $r = $application->find($cmdName)->run($input, $output);
         if (0 !== $r) {
             throw new \Exception("doctrine mapping is wrong ($r)", $r, $oldEx);

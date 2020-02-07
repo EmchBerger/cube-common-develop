@@ -136,14 +136,14 @@ class SmoketestPageLoadingBase extends WebTestBase
             self::bootKernel();
         }
         $routes = self::$kernel->getContainer()->get('router')->getRouteCollection();
-        $result = array();
+        $result = [];
         foreach ($routes as $name => $route) {
             // only use interesting urls, the rest is too much uninteresting data
             if (static::interestedInRoute($route)) {
-                $infos = array('path' => $route->getPath(),
+                $infos = ['path' => $route->getPath(),
                     'methods' => $route->getMethods(),
                     'defaults' => $route->getDefaults(),
-                );
+                ];
                 $result[$name] = $infos;
             }
         }
@@ -195,10 +195,10 @@ class SmoketestPageLoadingBase extends WebTestBase
             if (file_exists($rPath)) {
                 $urls = Yaml::parse(file_get_contents($rPath));
             } else {
-                $urls = array();
-                $todoUrl = array('defaults' => array('_controller' => ''), 'methods' => array('GET'));
+                $urls = [];
+                $todoUrl = ['defaults' => ['_controller' => ''], 'methods' => ['GET']];
                 $todoUrl['path'] = 'TO'.'DO: update _routes.yml, see hint at top.';
-                $curUrls = array_merge(array('TODO' => $todoUrl), $curUrls);
+                $curUrls = array_merge(['TODO' => $todoUrl], $curUrls);
             }
             foreach ($curUrls as $name => $data) {
                 if (!isset($urls[$name]) || $urls[$name] != $data) {
@@ -214,11 +214,11 @@ class SmoketestPageLoadingBase extends WebTestBase
         if (file_exists($sPath)) {
             $specials = Yaml::parse(file_get_contents($sPath));
         } else {
-            $specials = array();
+            $specials = [];
         }
-        $specialTests = isset($specials['tests']) ? array_fill_keys(array_keys($specials['tests']), true) : array();
+        $specialTests = isset($specials['tests']) ? array_fill_keys(array_keys($specials['tests']), true) : [];
         foreach ($urls as $name => &$data) {
-            $special = isset($specials['tests'][$name]) ? $specials['tests'][$name] : array();
+            $special = isset($specials['tests'][$name]) ? $specials['tests'][$name] : [];
             $data['testType'] = static::determineTestType($special, $data);
             $data['testSpecial'] = $special;
             unset($specialTests[$name]);
@@ -261,7 +261,7 @@ class SmoketestPageLoadingBase extends WebTestBase
                 $info['controller'] = $data['defaults']['_controller'];
                 $methods = $data['methods'];
                 if (empty($methods)) {
-                    $methods = array('GET', 'POST_ANY');
+                    $methods = ['GET', 'POST_ANY'];
                     $c = 2;
                 } else {
                     $c = count($methods);
@@ -272,18 +272,18 @@ class SmoketestPageLoadingBase extends WebTestBase
                     } else {
                         $mName = "${name}_${method}";
                     }
-                    yield $mName => array(
+                    yield $mName => [
                         'method' => $method,
                         'path'   => $data['path'],
                         'info'   => (object) $info,
-                    );
+                    ];
                 }
                 ++$i;
             }
         }
         if (0 === $i && 'testSimplePageLoading' !== $testMethodName) {
             // would report an error when no tests returned
-            yield 'skip' => array(null, null, null); // static::markTestSkipped does not yet work with phpunit 3.7.28
+            yield 'skip' => [null, null, null]; // static::markTestSkipped does not yet work with phpunit 3.7.28
         }
     }
 
@@ -327,7 +327,7 @@ class SmoketestPageLoadingBase extends WebTestBase
     {
         if ($method == 'POST_ANY') {
             $method = 'POST';
-        } elseif (!in_array($method, array('GET', 'DELETE', 'PATCH', 'POST', 'PUT'))) {
+        } elseif (!in_array($method, ['GET', 'DELETE', 'PATCH', 'POST', 'PUT'])) {
             $this->markTestIncomplete(sprintf('method %s not yet supported', $method));
 
             return;
@@ -355,7 +355,7 @@ class SmoketestPageLoadingBase extends WebTestBase
                 break;
         }
 
-        return array('code' => $code, 'msg' => $msg, 'exception' => $ex, 'crawler' => $crawler);
+        return ['code' => $code, 'msg' => $msg, 'exception' => $ex, 'crawler' => $crawler];
     }
 
     protected function checkRedirectAw(array &$aw, $method, $path, $info)
@@ -400,13 +400,13 @@ class SmoketestPageLoadingBase extends WebTestBase
         return false;
     }
 
-    protected static function replaceUrlParameter($url, $info, $method, array $defaultReplace = array())
+    protected static function replaceUrlParameter($url, $info, $method, array $defaultReplace = [])
     {
         $nr = 1;
         if ('DELETE' === $method) {
             $nr = 99999; // probably non existing
         }
-        $replace = array('{id}' => $nr);
+        $replace = ['{id}' => $nr];
         if (isset($info->urlParameters)) {
             $replace = array_merge($replace, $defaultReplace, $info->urlParameters);
         } elseif ($defaultReplace) {
@@ -439,7 +439,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         foreach ($anyOf as $name => $any) {
             if (is_string($any)) {
                 $match = $any;
-                $any = array();
+                $any = [];
             } elseif (isset($any['code']) && $code != $any['code']) {
                 continue; // code did not match
             } elseif (!isset($any['msg']) && isset($any['code'])) {

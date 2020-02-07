@@ -16,33 +16,33 @@ class WebTestBaseTest extends \PHPUnit\Framework\TestCase
 
     public function testMsgUnexpectedRedirect()
     {
-        $paramObj = (object) array('targetUrl' => 'tgt', 'requestUrl' => 'rq', 'flashBag' => array());
+        $paramObj = (object) ['targetUrl' => 'tgt', 'requestUrl' => 'rq', 'flashBag' => []];
         $client = $this->getMockClient($paramObj);
         $msg = WebTestBase::msgUnexpectedRedirect($client);
         $this->assertSame("unexpected redirect (to 'tgt' from 'rq', flashbag: [])", $msg);
 
-        $paramObj->flashBag = array('a' => 136, 'b' => 'x', 93 => array('x' => 7));
+        $paramObj->flashBag = ['a' => 136, 'b' => 'x', 93 => ['x' => 7]];
         $msg2 = WebTestBase::msgUnexpectedRedirect($client);
         $this->assertNotSame($msg, $msg2, 'silly flashbag is shown'); // and no error has happened
     }
 
     private function getMockClient($paramObj)
     {
-        $mClient = $this->getMockBuilder(Client::class)->setMethods(array('getResponse', 'getRequest'))->getMock();
+        $mClient = $this->getMockBuilder(Client::class)->setMethods(['getResponse', 'getRequest'])->getMock();
 
-        $mResponse = $this->getMockBuilder('dummy\Response')->setMethods(array('getTargetUrl'))->getMock();
+        $mResponse = $this->getMockBuilder('dummy\Response')->setMethods(['getTargetUrl'])->getMock();
         $mResponse->expects($this->any())->method('getTargetUrl')->willReturnCallback(function () use ($paramObj) {
             return $paramObj->targetUrl;
         });
         $mClient->expects($this->any())->method('getResponse')->willReturn($mResponse);
 
-        $mBag = $this->getMockBuilder('dummy\Bag')->setMethods(array('peekAll'))->getMock();
+        $mBag = $this->getMockBuilder('dummy\Bag')->setMethods(['peekAll'])->getMock();
         $mBag->expects($this->any())->method('peekAll')->willReturnCallback(function () use ($paramObj) {
             return $paramObj->flashBag;
         });
-        $mSession = $this->getMockBuilder('dummy\Session')->setMethods(array('getFlashBag'))->getMock();
+        $mSession = $this->getMockBuilder('dummy\Session')->setMethods(['getFlashBag'])->getMock();
         $mSession->expects($this->any())->method('getFlashBag')->willReturn($mBag);
-        $mRequest = $this->getMockBuilder('dummy\Request')->setMethods(array('getRequestUri', 'getSession'))->getMock();
+        $mRequest = $this->getMockBuilder('dummy\Request')->setMethods(['getRequestUri', 'getSession'])->getMock();
         $mRequest->expects($this->any())->method('getRequestUri')->willReturnCallback(function () use ($paramObj) {
             return $paramObj->requestUrl;
         });
