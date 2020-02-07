@@ -2,9 +2,9 @@
 
 namespace CubeTools\CubeCommonDevelop\Test\WebTest;
 
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Smoke Test for pages not tested elsewhere.

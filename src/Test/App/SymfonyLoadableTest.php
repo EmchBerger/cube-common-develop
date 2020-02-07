@@ -2,9 +2,9 @@
 
 namespace CubeTools\CubeCommonDevelop\Test\App;
 
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\PhpExecutableFinder;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 /**
  * Basic test to check if symfony binaries are loadable.

@@ -2,8 +2,8 @@
 
 namespace CubeTools\CubeCommonDevelop;
 
-use Incenteev\ParameterHandler\ScriptHandler;
 use Composer\Script\Event;
+use Incenteev\ParameterHandler\ScriptHandler;
 
 class ComposerCommands
 {
