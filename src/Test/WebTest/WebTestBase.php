@@ -256,12 +256,14 @@ class WebTestBase extends WebTestCase
                 static::checkFailureProblem(self::$client, $e);
 
                 self::$conditionsChecked = true; // passed, do not check on next failure
+                $errMsg = 'PASSED';
             } catch (\Exception $ex) {
                 self::$client = false; // disable remaining tests
-                fwrite(STDOUT, $ex->getMessage()."\n");
+                fwrite(STDOUT, $ex->getMessage()."\n"); // show failure
                 $e = $ex; // replace exception
+                $errMsg = 'FAILED, skipping similar test cases';
             }
-            fwrite(STDOUT, "  checking done\n\n");
+            fwrite(STDOUT, "  checking done, $errMsg\n\n");
         }
 
         return $e;
