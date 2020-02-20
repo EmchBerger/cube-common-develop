@@ -176,13 +176,14 @@ fi
 # warn on unwanted terms
 
 findUnwantedTerms () {
-    # args: file-pattern, invalid-pattern
-    local avoidMsg avoidColors filePatt invPatts r
+    # args: invalid-pattern file-pattern1 [file-pattern2 ...]
+    local avoidMsg avoidColors invPatts r
     avoidMsg='= avoid introducing what is colored above ='
     avoidColors='ms=01;33'
-    filePatt="$1"
-    invPatts="$2"
-    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$filePatt" |
+    invPatts="$1"
+    true filePatts "$2" # check arg 2
+    shift 1
+    git diff $cachedDiff $mergeAgainst -G "$invPatts" --color -- "$@" |
         grep -v -E '^[^-+ ]{0,9}-.*('"$invPatts)" | ### filter out matches on "- " line, respecting gits coloring
         GREP_COLORS="$avoidColors" grep --color=always -C 16 -E "$invPatts"
     r=$?
@@ -195,7 +196,7 @@ findUnwantedTerms () {
 invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  "
 invPatts="$invPatts|(^| )dump\(|\\$\\$|->get\([^)]*::[^)]*\)|->get\([^\)]*\\\\[^\)]*\)"
 invPatts="$invPatts|[Aa]uto[- ]?generated.*please|@[a-zA-Z]* type\b"
-if findUnwantedTerms '*.php' "$invPatts"
+if findUnwantedTerms "$invPatts" '*.php'
 then
     cat <<'TO_HERE'
 use this:
@@ -212,7 +213,7 @@ TO_HERE
     showWarning
 fi
 invPatts="</input>|</br>|replace\(.*n.*<br.*\)|\{% *dump |\{\{[^}]dump\("
-if findUnwantedTerms '*.htm*' "$invPatts"
+if findUnwantedTerms "$invPatts" '*.htm' '*.html' '*.html.*'
 then
     cat <<'TO_HERE'
 use this:
@@ -225,7 +226,7 @@ TO_HERE
 fi
 
 invPatts="public: true"
-if findUnwantedTerms 'app/config/services.yml' "$invPatts"
+if findUnwantedTerms "$invPatts" 'app/config/services.yml' 'config/*.yaml'
 then
     cat <<'TO_HERE'
   * do NOT make services public, use auto wiring instead
@@ -236,7 +237,7 @@ TO_HERE
 fi
 
 invPatts="\.format\(.[DMY]"
-if findUnwantedTerms '*.twig' "$invPatts"
+if findUnwantedTerms "$invPatts" '*.twig'
 then
     cat <<'TO_HERE'
   * do not use dateVar.format(...), use dateVar|showDate (in pa) or dateVar|date(...)
