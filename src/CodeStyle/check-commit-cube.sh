@@ -193,7 +193,7 @@ findUnwantedTerms () {
     return $r
 }
 invPatts="\(array\).*json_decode|new .*Filesystem\(\)|->add\([^,]*, *['\"][^ ,:]*|->add\([^,]*, new |createForm\( *new  "
-invPatts="$invPatts|\bdump\(|\\$\\$|->get\([^)]*::[^)]*\)|->get\([^\)]*\\\\[^\)]*\)"
+invPatts="$invPatts|(^| )dump\(|\\$\\$|->get\([^)]*::[^)]*\)|->get\([^\)]*\\\\[^\)]*\)"
 invPatts="$invPatts|[Aa]uto[- ]?generated.*please|@[a-zA-Z]* type\b"
 if findUnwantedTerms '*.php' "$invPatts"
 then
