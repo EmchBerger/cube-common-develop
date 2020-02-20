@@ -200,7 +200,7 @@ then
     cat <<'TO_HERE'
 use this:
   * json_decode(xxx, true)           instead of (array) json_decode(xxx)
-  * $container->get('filesystem')    instead of new Filesystem
+  * typehint Filesystem              instead of new Filesystem, only in case typehinting is around
   * ->add('name', TextType::class    instead of ->add('add', 'text' when creating forms (and ChoiceType, DateType, ...)
   * SomeType::class                  instead of new SomeType() in ->add( and ->createForm('
   * remove debugging                 dump(...) breaks non-debug run
