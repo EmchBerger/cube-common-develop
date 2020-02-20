@@ -225,13 +225,14 @@ TO_HERE
     showWarning
 fi
 
-invPatts="public: true"
+invPatts="public: true|[ /][^% /]*%[^% /]*([ #/]|$)|[ /][^% /]*%[^%]*%[^%]*%[^% /]*([ /]|$)"
 if findUnwantedTerms "$invPatts" 'app/config/services.yml' 'config/*.yaml'
 then
     cat <<'TO_HERE'
   * do NOT make services public, use auto wiring instead
     - function __construct(Class $var  instead of ->get(ClassName) in services
     - function xxAction(Class $var, .. instead of ->get(ClassName) in Controllers
+  * uneven number of % is unlikely in config of symfony
 TO_HERE
     showWarning
 fi
