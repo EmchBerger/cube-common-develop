@@ -10,7 +10,7 @@ atExit () {
     if [ 0 -ne $rc ]
     then
         printf '  ** failed with %s' "$rc"
-        [ -n "$1" ] && printf ' on line %s' "$1"
+        [ -n "$1" ] && [ 1 != "$1" ] && printf ' on line %s' "$1" # LINENO is 1 often, which is always wrong
         printf '\n'
     fi >&2
     if [ -n "${usedTemplatesFile:-}" ]
