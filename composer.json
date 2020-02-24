@@ -25,6 +25,9 @@
         "incenteev/composer-parameter-handler": "to run composer command",
         "phpstan/phpstan": "to check more things in the code"
     },
+    "conflict": {
+        "doctrine/orm": "<2.5.0"
+    },
     "autoload": {
         "psr-4": {"CubeTools\\CubeCommonDevelop\\": "src/"}
     },
