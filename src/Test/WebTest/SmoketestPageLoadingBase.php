@@ -439,7 +439,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         foreach ($anyOf as $name => $any) {
             if (is_string($any)) {
                 $match = $any;
-                $any = array();
+                $any = array('msg' => $match);
             } elseif (isset($any['code']) && $code != $any['code']) {
                 continue; // code did not match
             } elseif (!isset($any['msg']) && isset($any['code'])) {
