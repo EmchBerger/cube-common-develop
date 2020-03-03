@@ -52,7 +52,7 @@ elif [ -n "$1" ]
 then
     if [ "${1%..}" != "$1" ]
     then
-        against="$(git log --reverse --format=format:%H "$1"  | head -n 1)"
+        against="$(git log --reverse --format=format:%H "$1" -- | head -n 1)"
     else
         against=$(git rev-parse --verify "$1")
     fi

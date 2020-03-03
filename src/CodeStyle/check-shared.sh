@@ -282,12 +282,12 @@ runPreCommitComChecks() {
     cfgFile=.pre-commit-config-postcube.yaml
     # note to SC2009: using pgrep does not work here
     #   shellcheck disable=SC2009
-    if [ -f "$cfgFile" ] && ps -p "$PPID" -o args= | grep -q -e '\bgit\b' -e '^/bin/bash$' -e '^bash$'
+    if [ -f "$cfgFile" ] && ps -p "$PPID" -o args= | grep -q -v -e '\bpython.*\bpre-commit\b' -e 'runningInContainer'
     then
         # has hook file and is directly run by git hook (not pre-commit, not in docker) or interactive shell
         if hash pre-commit 2>/dev/null
         then # pre-commit exists
-            if pre-commit run --config "$cfgFile"
+            if doRunPreCommit pre-commit run --config "$cfgFile"
             then
                 true passed
             else
@@ -295,9 +295,27 @@ runPreCommitComChecks() {
                 showWarning
             fi
         else
-            echo '    "pre-commit" is not installed, install it by running "pip install pre-commit"'
+            echo '    "pre-commit" is not installed, install it by running "curl https://pre-commit.com/install-local.py | python3 -"'
             pre-commit run --config "cfgFile" || showWarning
         fi
+    fi
+}
+
+# runs pre-commit (= arg 1) with or without file list
+doRunPreCommit() {
+    true "${1:?no command given (probaly pre-commit)}"
+    local noFileList
+    if [ -n "$whenNoMerge" ]; then noFileList=1 # a merge
+    elif [ -n "${fileList:-}" ]; then noFileList= # check-files-cube.sh
+    elif [ "${against:-}" = HEAD ] && [ -z "${cachedDiff:-}" ]; then noFileList=1 # normal: no argument ref and not --cached
+    else noFileList= # ref or --cached given
+    fi
+    if [ -z "$noFileList" ]
+    then # pre-commit finds the files itself
+        showCommand "$@"
+        "$@"
+    else # pass files to pre-commit
+         $gitListFiles | $xArgs0 "$@" --files
     fi
 }
 
