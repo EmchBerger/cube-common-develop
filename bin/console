@@ -4,10 +4,12 @@
 require __DIR__.'/../vendor/autoload.php';
 
 use CubeTools\CubeCommonDevelop\SymfonyCommands;
+use CubeTools\CubeCommonDevelop\Workplace\DevCommands;
 use Symfony\Component\Console\Application;
 
 $application = new Application();
 
 SymfonyCommands::addCcdCommands($application);
+DevCommands::addCommands($application);
 
 $application->run();

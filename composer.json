@@ -20,7 +20,9 @@
     "require-dev": {
         "incenteev/composer-parameter-handler": "^2.1",
         "phpstan/phpstan": "^0.12.3",
-        "symfony/console": "^3.1|^4.1|^5.0"
+        "symfony/console": "^3.1|^4.1|^5.0",
+        "symfony/twig-bridge": "^3.1|^4.1|^5.0",
+        "symfony/yaml": "^3.1|^4.1|^5.0"
     },
     "suggest": {
         "incenteev/composer-parameter-handler": "to run composer command",
