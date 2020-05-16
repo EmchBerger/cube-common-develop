@@ -131,6 +131,7 @@ checkTranslations () {
 }
 
 runCheckTranslation() {
+    $gitListFiles -- '*.xliff' '*.xlf' | $xArgs0 -- bin/console lint:xliff:cubestyle || showWarning
     $gitListFiles --quiet  -- '*.xliff' '*.xlf' || checkTranslations
 }
 
