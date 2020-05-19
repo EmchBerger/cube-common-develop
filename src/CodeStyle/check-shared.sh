@@ -184,7 +184,7 @@ syConsoleXargsN1 () {
 runCheckDatabase() {
     #check database (when an annotation or a variable changed in an entity)
     $gitListFiles --quiet -G ' @|(protected|public|private) +\$\w' -- '*/Entity/*.php' ||
-        syConsoleRun doctrine:schema:validate || showWarning
+        syConsoleRun doctrine:schema:validate --skip-sync || showWarning
 }
 
 
