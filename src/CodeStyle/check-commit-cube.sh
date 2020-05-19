@@ -225,7 +225,7 @@ TO_HERE
     showWarning
 fi
 
-invPatts="public: true|[ /][^% /]*%[^% /]*([ #/]|$)|[ /][^% /]*%[^%]*%[^%]*%[^% /]*([ /]|$)"
+invPatts="public: true|[ /][^% /]*%([^%]*%[^%]*%)*[^% /]*([ /]|$)" 
 if findUnwantedTerms "$invPatts" 'app/config/services.yml' 'config/*.yaml'
 then
     cat <<'TO_HERE'
