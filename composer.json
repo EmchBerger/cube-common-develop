@@ -21,6 +21,9 @@
         "incenteev/composer-parameter-handler": "^2.1",
         "phpstan/phpstan": "^0.12.3"
     },
+    "conflict": {
+        "phpunit/phpunit": "^7|^8"
+    },
     "suggest": {
         "incenteev/composer-parameter-handler": "to run composer command",
         "phpstan/phpstan": "to check more things in the code"
