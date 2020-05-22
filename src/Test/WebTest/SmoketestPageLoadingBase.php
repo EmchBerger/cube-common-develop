@@ -43,6 +43,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
 
         $client = $this->getClient(true);
+        $client->catchExceptions(false); // report exceptions directly
         $ex = null;
         $crawler = null;
         try {
