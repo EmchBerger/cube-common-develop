@@ -53,7 +53,8 @@
     },
     "bin": [
         "src/CodeStyle/check-commit-cube.sh",
-        "src/CodeStyle/check-files-cube.sh"
+        "src/CodeStyle/check-files-cube.sh",
+        "src/CodeStyle/verify-twig-template-usage.sh"
     ],
     "config": {
         "sort-packages": true
