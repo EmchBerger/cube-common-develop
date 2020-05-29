@@ -73,6 +73,8 @@ class XliffFiles
                 $node->setAttribute('id', $nId);
                 $node->removeAttribute('resname'); // unwanted
                 $fixed[] = 'id of "'.substr(strtr($sourceTxt, array("\n" => "\\n")), 0, 128).'"';
+            } else {
+                $fixed[] = 'TODO id invalid: '.$id;
             }
         }
         if (false !== strpos($sourceTxt, ' %') && false === self::getTranslatedParamPos($unit->filter('target')->text())) {
@@ -104,6 +106,14 @@ class XliffFiles
         }
     }
 
+    /**
+     * Check $id is valid for $sourceTxt.
+     *
+     * $id is invalid when:
+     *  * it is empty
+     *  * it contains '% '
+     *  * it is not contained in $sourceTxt
+     */
     private static function invalidId($id, $sourceTxt)
     {
         return !$id || false !== strpos($id, ' %') ||
