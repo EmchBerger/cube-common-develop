@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__.'/../vendor/autoload.php';
+
+use CubeTools\CubeCommonDevelop\SymfonyCommands;
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+
+SymfonyCommands::addCcdCommands($application);
+
+$application->run();
