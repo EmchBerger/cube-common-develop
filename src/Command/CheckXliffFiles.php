@@ -61,6 +61,7 @@ EoMsg
         if ($nErrors) {
             $msg = '<comment>%s</>: <error>%d Errors</> in <error>%d</> files (checked %d of %d)';
             $output->writeln(\sprintf($msg, $this->getName(), $nErrors, $eFiles, $cFiles, \count($files)));
+            !$doFix && $output->writeln(\sprintf('fix with running: %s --fix ...', $this->getName()));
         } else {
             $output->writeln(\sprintf('%s: <info>[OK] checked %d files</>', $this->getName(), \count($files)));
         }
