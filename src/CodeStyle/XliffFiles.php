@@ -83,7 +83,7 @@ class XliffFiles
     /**
      * Check if translation contains something looking like a parameter.
      *
-     * The translated text can also contain the parameter inside quotes.
+     * The translated text can also contain the parameter inside quotes. (The original text (label) can not.)
      *
      * @return int|false
      */
@@ -95,8 +95,9 @@ class XliffFiles
             return $pos2;
         }
         $atPos1 = strtolower(substr($string, $pos2 - 1, 1));
-        if ($atPos1 < 'a' || $atPos1 > 'z') {
-            return $pos2 - 1;
+        if ($atPos1 < 'a' && '%' !== $atPos1 || $atPos1 > 'z') {
+            // looks like a parameter start (like '"%', ' %' or '(%', but not '%%')
+            return $pos2;
         } else {
             // look for next % character
             return self::getTranslatedParamPos($string, $pos2 + 1);
