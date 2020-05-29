@@ -18,6 +18,8 @@ use Symfony\Component\Routing\Route;
  */
 class SmoketestPageLoadingBase extends WebTestBase
 {
+    use Traits\TestBaseTrait;
+
     const EXCEPTION_CODE = 'exception';
 
     /**
@@ -352,7 +354,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         }
     }
 
-    public function getSize()
+    protected function doGetSize()
     {
         // overwrite method in TestCase, instead of using annotations @small, @medium, @large everywhere
         if (class_exists(\PHPUnit\Util\Test::class)) {
@@ -374,7 +376,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         return false;
     }
 
-    public function getDataSetAsString($includeData = true)
+    protected function doGetDataSetAsString($includeData = true)
     {
         $buffer = parent::getDataSetAsString($includeData);
         if ($includeData && $buffer) {
@@ -387,7 +389,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         return $buffer;
     }
 
-    public function getActualOutput()
+    protected function doGetActualOutput()
     {
         // overwrite parent function to shorten shown output
 
@@ -439,7 +441,7 @@ class SmoketestPageLoadingBase extends WebTestBase
         foreach ($anyOf as $name => $any) {
             if (is_string($any)) {
                 $match = $any;
-                $any = array();
+                $any = array('msg' => $match);
             } elseif (isset($any['code']) && $code != $any['code']) {
                 continue; // code did not match
             } elseif (!isset($any['msg']) && isset($any['code'])) {

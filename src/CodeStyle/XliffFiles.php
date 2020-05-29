@@ -73,13 +73,47 @@ class XliffFiles
                 $node->setAttribute('id', $nId);
                 $node->removeAttribute('resname'); // unwanted
                 $fixed[] = 'id of "'.substr(strtr($sourceTxt, array("\n" => "\\n")), 0, 128).'"';
+            } else {
+                $fixed[] = 'TODO id invalid: '.$id;
             }
         }
-        if (false !== strpos($sourceTxt, ' %') && false === strpos($unit->filter('target')->text(), ' %')) {
+        if (false !== strpos($sourceTxt, ' %') && false === self::getTranslatedParamPos($unit->filter('target')->text())) {
             $fixed[] = 'TODO include parameters in source "'.strtr($sourceTxt, array("\n", "\\n")).'" (from target )';
         }
     }
 
+    /**
+     * Check if translation contains something looking like a parameter.
+     *
+     * The translated text can also contain the parameter inside quotes. (The original text (label) can not.)
+     *
+     * @return int|false
+     */
+    private static function getTranslatedParamPos($string, $offset = 0)
+    {
+        $pos2 = strpos($string, '%', $offset);
+        if (false === $pos2 || 0 === $pos2) {
+            // not found, or at start
+            return $pos2;
+        }
+        $atPos1 = strtolower(substr($string, $pos2 - 1, 1));
+        if ($atPos1 < 'a' && '%' !== $atPos1 || $atPos1 > 'z') {
+            // looks like a parameter start (like '"%', ' %' or '(%', but not '%%')
+            return $pos2;
+        } else {
+            // look for next % character
+            return self::getTranslatedParamPos($string, $pos2 + 1);
+        }
+    }
+
+    /**
+     * Check $id is valid for $sourceTxt.
+     *
+     * $id is invalid when:
+     *  * it is empty
+     *  * it contains '% '
+     *  * it is not contained in $sourceTxt
+     */
     private static function invalidId($id, $sourceTxt)
     {
         return !$id || false !== strpos($id, ' %') ||

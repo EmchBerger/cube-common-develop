@@ -7,6 +7,46 @@ parameters:
     paths:
       - src/
       - tests/
+    autoload_files:
+      - src/CodeStyle/PhpStanDummy/LoadFallbackClasses.php
+
     ignoreErrors:
         # types likely not loaded in library
-        - '#Parameter \$event of .* has invalid typehint type Composer\\Script\\Event\.#'
+        #   symfony
+        - message: '#Parameter .* has invalid typehint type Symfony\\Component\\Routing\\RequestContext\.#'
+          path: src/Test/*
+          # count: 2
+        - message: '#Parameter .* has invalid typehint type Symfony\\Component\\Routing\\Route\.#'
+          path: src/Test/*
+          # count: 3
+        - message: '#class Symfony\\Component\\Routing\\Matcher\\TraceableUrlMatcher not found#'
+          path: src/Test/*
+          # count: 1
+        - message: '#unknown class Symfony\\Component\\Routing\\Matcher\\TraceableUrlMatcher\.#'
+          path: src/Test/*
+          # count: 2
+        - message: '#unknown class Symfony\\Component\\HttpFoundation\\Response\.#'
+          path: src/Test/*
+          # count: 15
+        - message: '#class Symfony\\Component\\DependencyInjection\\Exception\\InvalidArgumentException not found#'
+          path: src/Test/*
+          # count: 2
+        - message: '#invalid typehint type Symfony\\Bundle\\FrameworkBundle\\Client\.#'
+          path: src/Test/*
+          # count: 3
+        - message: '#Symfony\\Bundle\\FrameworkBundle\\Client not found\.#'
+          path: tests/Test/*
+          # count: 1
+        - message: '#invalid typehint type Symfony\\Component\\BrowserKit\\Client\.#'
+          path: src/Test/*
+          # count: 7
+        #   phpunit
+        - message: '#Class PHPUnit\\Util\\Test not found#'
+          path: src/Test/*
+          # count: 1
+        - message: '#unknown class PHPUnit[\\_]Util[\\_]Test\.#'
+          path: src/Test/*
+          # count: 2
+
+includes:
+    - .phpstan_baseline.neon # created with: make make-phpstan-baseline

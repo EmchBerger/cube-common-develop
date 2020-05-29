@@ -6,7 +6,7 @@ help:
 	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z-]+:.*?## .*$$/ {printf "\033[32m%-15s\033[0m %s\n", $$1, $$2}' Makefile | sort
 
 # specific to cube-common-develop
-thisFilesDir = $(dir $(lastword $(MAKEFILE_LIST)))
+thisFilesDir := $(dir $(lastword $(MAKEFILE_LIST)))
 cubeDevDir = $(thisFilesDir)
 checkScript = $(cubeDevDir)/src/CodeStyle/check-commit-cube.sh
 
@@ -59,6 +59,12 @@ validate-cs-fixer: ## runs php-cs-fixer (code style)
 
 validate-all: validate-codestyle validate-cs-fixer validate-stan ## runs all validation-* commands
 .PHONY: validate-all
+
+.phpstan_baseline.neon: make-phpstan-baseline
+make-phpstan-baseline: ## updates ./.phpstan_baseline.neon, please check before committing
+	vendor/bin/phpstan analyse --error-format baselineNeon $$(git ls-files '*.php') > .phpstan_baseline.neon || true
+	@echo .phpstan_baseline.neon updated, please check it before committing
+.PHONY: make-phpstan-baseline
 
 # general
 
