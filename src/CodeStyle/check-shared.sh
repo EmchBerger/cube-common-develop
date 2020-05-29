@@ -142,6 +142,8 @@ findSyConsole () {
             then true # OK
         elif [ -f app/console ]
             then syConsole=app/console
+        elif [ -f vendor/cubetools/cube-common-develop/bin/console ]
+            then syConsole=vendor/cubetools/cube-common-develop/bin/console
         else
             syConsoleError="console not available"
         fi
