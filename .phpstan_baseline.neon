@@ -45,3 +45,13 @@ parameters:
 			count: 1
 			path: src/Test/WebTest/WebTestBase.php
 
+		-
+			message: "#^Caught class PHPUnit\\\\Framework\\\\ExpectationFailedException not found\\.$#"
+			count: 2
+			path: tests/Test/MoreAssertionsTraitTest.php
+
+		-
+			message: "#^Caught class PHPUnit_Framework_ExpectationFailedException not found\\.$#"
+			count: 2
+			path: tests/Test/MoreAssertionsTraitTest.php
+

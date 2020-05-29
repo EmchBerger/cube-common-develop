@@ -11,7 +11,7 @@ class MoreAssertionsTraitTest extends \PHPUnit\Framework\TestCase
     public function testAssertArrayEmptyElementsOnly()
     {
         $array = array('', null, array(), 0, false);
-        MoreAssertionsTrait::assertArrayEmptyElementsOnly($array);
+        self::assertArrayEmptyElementsOnly($array);
     }
 
     public function testAssertArrayEmptyElementsOnlyFailing()
@@ -19,7 +19,7 @@ class MoreAssertionsTraitTest extends \PHPUnit\Framework\TestCase
         $e = null;
         $array = array(null, 3);
         try {
-            MoreAssertionsTrait::assertArrayEmptyElementsOnly($array);
+            self::assertArrayEmptyElementsOnly($array);
             $this->assertTrue(false, 'Assertion should not have passed');
         } catch (\PHPUnit\Framework\ExpectationFailedException $e) {
             // phpunit > v6
@@ -40,7 +40,7 @@ class MoreAssertionsTraitTest extends \PHPUnit\Framework\TestCase
         $e = null;
         $array = array(5, 'bla', array(null), false);
         try {
-            MoreAssertionsTrait::assertArrayNoEmptyElements($array);
+            self::assertArrayNoEmptyElements($array);
             $this->assertTrue(false, 'Assertion should not have passed');
         } catch (\PHPUnit\Framework\ExpectationFailedException $e) {
             // phpunit > v6
