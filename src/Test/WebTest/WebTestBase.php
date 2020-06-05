@@ -35,16 +35,16 @@ class WebTestBase extends WebTestCase
      */
     private static $probablyWorking = 0;
 
-    private $usesClient = false;
+    private static $clientUsedCount = 0;
 
     /**
      * Gets a client already logged in, cached for one test class.
      *
      * @return Client
      */
-    public function getClient($newClient = false)
+    protected static function getClient($newClient = false)
     {
-        $this->usesClient = true;
+        ++self::$clientUsedCount;
         if (!self::$client) {
             if (self::$client === false) {
                 static::markTestSkipped('client could not be loaded');
@@ -210,8 +210,10 @@ class WebTestBase extends WebTestCase
               teardown() can not modify the exception
         */
         try {
+            $usesBefore = self::$clientUsedCount;
             $r = parent::runTest();
-            if ($this->usesClient && $this->getCount()) {
+            $usesNow = self::$clientUsedCount;
+            if ($usesBefore !== $usesNow && $this->getCount()) {
                 ++self::$probablyWorking;
             }
 
@@ -229,14 +231,15 @@ class WebTestBase extends WebTestCase
         } catch (\PHPUnit\Framework\RiskyTestError $e) {
             throw $e; // no check for more phpunit failures
         } catch (\Exception $e) {
-            $e = $this->maybeCheckFailureProblem($e);
+            $usesNow = self::$clientUsedCount;
+            $e = $this->maybeCheckFailureProblem($e, $usesBefore !== $usesNow);
             throw $e;
         }
     }
 
-    final protected function maybeCheckFailureProblem(\Exception $e)
+    final protected function maybeCheckFailureProblem(\Exception $e, $usesClient)
     {
-        $doCheck = self::$client && !self::$conditionsChecked && $this->usesClient &&
+        $doCheck = self::$client && !self::$conditionsChecked && $usesClient &&
             self::$probablyWorking < 24 && 'all' !== getenv('TestCaseDisableCheck') &&
             ('PHPUnit_Framework_ExpectationFailedException' !== get_class($e) ||
                 false === strpos($e->getMessage(), 'local problem ') &&
