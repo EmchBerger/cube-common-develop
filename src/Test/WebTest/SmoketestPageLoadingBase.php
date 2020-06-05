@@ -315,8 +315,17 @@ class SmoketestPageLoadingBase extends WebTestBase
                // handled below
             }
             if ($ex) {
-                $err = sprintf("  Exception %s in %s(), %s\n", get_class($ex), __FUNCTION__, $ex->getMessage());
+                $err = sprintf("  Exception %s while running %s(), %s\n", get_class($ex), __FUNCTION__, $ex->getMessage());
                 fwrite(STDERR, $err); // because generator hides error
+                $trace = $ex->getTraceAsString();
+                $atOffset = strpos($trace, __METHOD__);
+                if ($atOffset && $atOffset = strpos($trace, "\n", $atOffset)) {
+                    fwrite(STDERR, substr($trace, 0, $atOffset));
+                    fwrite(STDERR, "\n#...\n\n");
+                } else {
+                    fwrite(STDERR, $trace);
+                    fwrite(STDERR, "\n\n");
+                }
                 static::$urlData = []; // cache failure for next test method
                 throw $ex;
             }
