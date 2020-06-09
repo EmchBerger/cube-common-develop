@@ -22,14 +22,12 @@
         "phpstan/phpstan": "^0.12.3",
         "symfony/console": "^3.1|^4.1|^5.0"
     },
-    "conflict": {
-        "phpunit/phpunit": "^8"
-    },
     "suggest": {
         "incenteev/composer-parameter-handler": "to run composer command",
         "phpstan/phpstan": "to check more things in the code"
     },
     "conflict": {
+        "phpunit/phpunit": "^8",
         "doctrine/orm": "<2.5.0"
     },
     "autoload": {
