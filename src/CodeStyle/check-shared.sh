@@ -203,6 +203,14 @@ runCheckYaml() {
     $gitListFiles -- '*.yml' '*.yaml' '*.neon' | syConsoleXargsN1 lint:yaml "$@" -- || warnWhenMissing
 }
 
+runCheckContainer() {
+    if [ -f vendor/symfony/framework-bundle/Command/ContainerLintCommand.php ] && # since sy4
+        ! $gitListFiles --quiet -- 'config/'
+    then
+        syConsoleRun lint:container || showWarning # allow to skip in case of temporary problem with container
+    fi
+}
+
 findComposer() {
         local checkDir
         if [ -n "${composerCmd:-}" ]
@@ -332,6 +340,7 @@ runSharedChecks() {
     runCheckDatabase
     runCheckTwig
     runCheckYaml
+    runCheckContainer
     runCheckComposer
     runCheckPhpcs
     runCheckPhpstan
