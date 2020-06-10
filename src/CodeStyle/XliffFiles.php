@@ -55,6 +55,103 @@ class XliffFiles
         return $fixed;
     }
 
+    /**
+     * Create an order array from a xliff file.
+     *
+     * @return int[] keys set from entries on orderFile
+     */
+    public static function getOrderFromFile(string $orderFile)
+    {
+        $toOrder = simplexml_load_file($orderFile);
+        foreach ($toOrder->file->body->children() as $unit) {
+            $order[] = (string) $unit['id'];
+        }
+
+        return array_flip($order);
+    }
+
+    /**
+     * Reorder entries in a xliff file according to $order.
+     *
+     * @param string $file  filename of xliff file to reorder
+     * @param int[]  $order order to follow (key is keyname, value is order number)
+     *
+     * @return int 0 if the file is already sorted, else another number
+     */
+    public static function sortFile($file, array $order)
+    {
+        $domDoc = new \DomDocument();
+        $domDoc->load($file);
+
+        /** @var \DOMNode[] $toSort domElements to order */
+        $toSort = [];
+        foreach ($domDoc->getElementsByTagName('trans-unit') as $unit) {
+            $toSort[$unit->attributes->getNamedItem('id')->value] = $unit;
+        }
+        $sorted = self::sortEntries($toSort, $order);
+        if ($toSort === $sorted) {
+            // it is already sorted
+
+            return 0;
+        }
+
+        // reorder the entires in the file, keeping related nodes (comments, ...) together
+        foreach ($sorted as $key => $unit) {
+            $toAppend = [$unit];
+            // collect related nodes
+            while ($unit->previousSibling && \XML_ELEMENT_NODE !== $unit->previousSibling->nodeType) {
+                $unit = $unit->previousSibling;
+                $toAppend[] = $unit;
+            }
+            $beforeNode = $unit->parentNode->lastChild;
+            foreach (array_reverse($toAppend) as $unit) {
+                $beforeNode->parentNode->insertBefore($unit, $beforeNode);
+            }
+        }
+        if ($domDoc->save($file.'#')) {
+            rename($file, $file.'~');
+            rename($file.'#', $file);
+        }
+
+        return 1;
+    }
+
+    /**
+     * Sort the entries according to the keys (as the keys of $getOrder).
+     *
+     * @param mixed[] $toSort   entries (from xliff file) to sort
+     * @param int[]   $getOrder sort order (key is key, value is order number)
+     *
+     * @return mixed[] reordered array with keys and values of $toSort
+     */
+    private static function sortEntries(array $toSort, array $getOrder)
+    {
+        /** @var float[] $newOrder with keys form $toSort */
+        $newOrder = [];
+        $lPos = -1;
+        $j = 0;
+        // determin the order
+        foreach (array_keys($toSort) as $key) {
+            if (isset($getOrder[$key])) {
+                $lPos = $getOrder[$key];
+                $newOrder[$key] = $lPos + 0.0;
+                $j = 0;
+            } else {
+                ++$j;
+                $newOrder[$key] = $lPos + $j / 1000.0;
+            }
+        }
+
+        asort($newOrder);
+        /** @var mixed[] $sorted sorted $toSort */
+        $sorted = [];
+        foreach (array_keys($newOrder) as $keyLabel) {
+            $sorted[$keyLabel] = $toSort[$keyLabel];
+        }
+
+        return $sorted;
+    }
+
     private static function checkUnit(Crawler $unit, array &$fixed)
     {
         $id = $unit->attr('id');
