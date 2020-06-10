@@ -196,7 +196,11 @@ runCheckTwig() {
 }
 
 runCheckYaml() {
-    $gitListFiles -- '*.yml' '*.yaml' '*.neon' | syConsoleXargsN1 lint:yaml -- || warnWhenMissing
+    if $gitListFiles | grep -q -e '/services\.y'
+    then # matched files may contain yaml tags like "x: !tagged ..."
+        set -- --parse-tags "$@" # set as argument
+    fi
+    $gitListFiles -- '*.yml' '*.yaml' '*.neon' | syConsoleXargsN1 lint:yaml "$@" -- || warnWhenMissing
 }
 
 findComposer() {
