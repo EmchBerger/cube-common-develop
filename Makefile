@@ -34,8 +34,10 @@ check-precommit: ## check all added files (after git add)
 	$(checkScript)
 .PHONY: check-precommit
 
-check-branch: ## checks all files changed since origin/development
-	$(checkScript) origin/development..
+check-branch: ## checks all files changed since parent branch
+	$(checkScript) $(shell git log --format=%D HEAD~ | \
+	  sed --silent -e 's/tag: [^ ]*//' -e 's/^ //' -e '/[^ ]/ {' -e 's/,.*$$//' -e p -e q -e '}' \
+	)..
 .PHONY: check-branch
 
 # validate targets
