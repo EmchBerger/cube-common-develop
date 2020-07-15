@@ -322,7 +322,7 @@ doRunPreCommit() {
     local noFileList
     if [ -n "$whenNoMerge" ]; then noFileList=1 # a merge
     elif [ -n "${fileList:-}" ]; then noFileList= # check-files-cube.sh
-    elif [ "${against:-}" = HEAD ] && [ -n "${cachedDiff:-}" ]; then noFileList=1 # normal: no argument ref and not --cached
+    elif [ "${against:-}" = HEAD ] && [ -n "${cachedDiff:-}" ]; then noFileList=1 # normal: no argument ref and not --changed
     else noFileList= # ref or --cached given
     fi
     if [ -n "$noFileList" ]
