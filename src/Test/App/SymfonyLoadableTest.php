@@ -28,7 +28,10 @@ class SymfonyLoadableTest extends TestCase
      */
     private static $console;
 
-    public static function setUpBeforeClass()
+    /**
+     * @beforeClass
+     */
+    public static function setUpPathBeforeClass()
     {
         $executableFinder = new PhpExecutableFinder();
         self::$php = $executableFinder->find();
