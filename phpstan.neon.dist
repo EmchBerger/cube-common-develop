@@ -7,7 +7,7 @@ parameters:
     paths:
       - src/
       - tests/
-    autoload_files:
+    bootstrapFiles:
       - src/CodeStyle/PhpStanDummy/LoadFallbackClasses.php
 
     ignoreErrors:
